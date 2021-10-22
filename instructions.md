@@ -1,71 +1,139 @@
-MOV
+# MOV
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   0   x   0   0   0  [targ reg]   x   x   x   x   x   x  [------------------- immediate --------------------]
+    >> Moves a 16 bit immediate value into the lower 2 bytes of a target register
 
-MOVT
+# MOVT
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   0   x   0   0   0  [targ reg]   x   x   x   x   x   x  [------------------- immediate --------------------]
+    >> Moves a 16 bit immediate value into the upper 2 bytes of a target register
 
-NOP
+# NOP
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 1   1   x   0   1   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Does nothing
 
-LOAD
+# LOAD
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 1   0   x   x   x   x   0  [targ reg]  [pntr reg]   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Loads the value from memory at location of the pointer register into the target register
 
-STOR
+# STOR
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+1    0   x   x   x   x   1  [targ reg]  [pntr reg]   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Stores the value of the target register to the location in memory of the pointer register
 
-ADD (REG)
+# ADD (REG)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   0   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  x    x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Adds the values of the operand registers and stores this to the destination register
 
-ADD (IMM)
+# ADD (IMM)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   0   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Adds the values of the operand register and immediate value and stores this to the destination register
 
-SUB (REG)
+# ADDS (REG) --- SETS FLAGS
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   1   0   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  x    x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Adds the values of the operand registers and stores this to the destination register 
 
-SUB (IMM)
+# ADDS (IMM) --- SETS FLAGS
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   1   0   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Adds the values of the operand register and immediate value and stores this to the destination register
 
-CMP
+# SUB (REG)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   0   1   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Subtracts operand 2 from operand 1 and stores this to the destination register
 
-AND (REG)
+# SUB (IMM)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   0   1   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Subtracts the immediate value from operand 1 and stores this to the destination register
 
-AND (IMM)
+# CMP [SUBS (REG)] --- SETS FLAGS
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   1   0   1   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Subtracts operand 2 from operand 1 and stores this to the destination register
 
-OR (REG)
+# AND (REG)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   0   1   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Performs a logical and on the operand registers and stores the result in the destination register
 
-OR (IMM)
+# AND (IMM)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   0   1   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Performs a logical and on the operand register and the immediate and stores the result in the destination register
 
-XOR (REG)
+# OR (REG)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   1   0   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Performs a logical or on the operand registers and stores the result in the destination register
 
-XOR (IMM)
+# OR (IMM)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   1   0   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Performs a logical or on the operand register and the immediate and stores the result in the destination register
 
-NOT
+# XOR (REG)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   1   0   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Performs a logical xor on the operand registers and stores the result in the destination register
 
-B (IMM)
+# XOR (IMM)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   1   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Performs a logical xor on the operand register and the immediate and stores the result in the destination register
 
-B.cond (IMM)
+# NOT
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   0   1   1   0  [dest reg]  [op 1 reg]   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Stores the 1's compliment of the operand into the destination register
 
-BR (REG)
+# B (IMM)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 1   1   x   0   0   0   0   x   x   x   x   x   x   x   x   x  [------------------- immediate --------------------]
 
-HALT
-31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
 
-LSL
+# B.cond (IMM)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 1   1   x   0   0   0   1  [ mask flags ]   x   x   x   x   x  [------------------- immediate --------------------]
 
-LSR
-31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
 
-CLR
+# BR (REG)
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 1   1   x   0   0   1   0  [targ reg]   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+
+
+# HALT
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 1   1   x   1   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+
+
+# LSL
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   0   x   1   x   0  [dest reg]  [shft reg]   x   x   x  [------------------- immediate --------------------]
+
+
+# LSR
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   0   x   1   x   1  [dest reg]  [shft reg]   x   x   x  [------------------- immediate --------------------]
+
+
+# CLR
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   0   x   0   1   0  [targ reg]
+
+
+# ALU COMMANDS:
+001: Add
+010: Sub
+011: And
+100: Or
+101: Xor
+110: Not
+
+
