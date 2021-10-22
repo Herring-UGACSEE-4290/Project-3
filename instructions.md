@@ -134,20 +134,23 @@
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  1   1   x   0   0   0   0   x   x   x   x   x   x   x   x   x  [------------------- immediate --------------------]
- ```
+    >> Branches to an offset defined by the immediate (signed)
+```
 
 
 # B.cond (IMM)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 1   1   x   0   0   0   1  [ mask flags ]   x   x   x   x   x  [------------------- immediate --------------------]
- ```
+ 1   1   x   0   0   0   1  [ cond flags ]   x   x   x   x   x  [------------------- immediate --------------------]
+    >> Branches to an offset defined by the immediate (signed) only if the proper condition flags are set
+```
 
 
 # BR (REG)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  1   1   x   0   0   1   0  [targ reg]   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Branches to an offset defined by the value of the target register
 ```
 
 
@@ -155,39 +158,48 @@
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  1   1   x   1   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
- ```
+    >> Sets a flag to stop the CPU
+```
 
 
 # LSL
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  0   0   0   x   1   x   0  [dest reg]  [shft reg]   x   x   x  [------------------- immediate --------------------]
+    >> Left shifts the shift register by the value in immediate and stores it in the destination register
 ```
 
 # LSR
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  0   0   0   x   1   x   1  [dest reg]  [shft reg]   x   x   x  [------------------- immediate --------------------]
+    >> Right shifts the shift register by the value in immediate and stores it in the destination register
 ```
 
 
 # CLR
-```31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  0   0   0   x   0   1   0  [targ reg]  x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Clears the entire contents of the target register
 ```
 
 # SET
-```31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  0   0   0   x   0   1   1  [targ reg]  x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Sets all bits of the entire contents of the target register
 ```
 
 
 # ALU COMMANDS:
+```
 001: Add
 010: Sub
 011: And
 100: Or
 101: Xor
 110: Not
+```
 
 
