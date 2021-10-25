@@ -43,7 +43,7 @@
 # ADD (IMM)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   0   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+ 0   0   1   0   0   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
     >> Adds the values of the operand register and immediate value and stores this to the destination register
 ```
 
@@ -57,7 +57,7 @@
 # ADDS (IMM) --- SETS FLAGS
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   1   0   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+ 0   0   1   1   0   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
     >> Adds the values of the operand register and immediate value and stores this to the destination register
 ```
 
@@ -70,15 +70,22 @@
 # SUB (IMM)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   0   1   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+ 0   0   1   0   0   1   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
     >> Subtracts the immediate value from operand 1 and stores this to the destination register
 ```
 
-# CMP [SUBS (REG)] --- SETS FLAGS
+# CMP [SUBS] (REG) --- SETS FLAGS
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  0   1   1   1   0   1   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
     >> Subtracts operand 2 from operand 1 and stores this to the destination register
+```
+
+# CMP [SUBS] (IMM) --- SETS FLAGS
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   1   1   0   1   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Subtracts the immediate value from operand 1 and stores this to the destination register
 ```
 
 # AND (REG)
@@ -91,7 +98,21 @@
 # AND (IMM)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   0   1   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+ 0   0   1   0   0   1   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Performs a logical and on the operand register and the immediate and stores the result in the destination register
+```
+
+# ANDS (REG) --- SETS FLAGS
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   1   0   1   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Performs a logical and on the operand registers and stores the result in the destination register
+```
+
+# ANDS (IMM) --- SETS FLAGS
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   1   1   0   1   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
     >> Performs a logical and on the operand register and the immediate and stores the result in the destination register
 ```
 
@@ -105,7 +126,21 @@
 # OR (IMM)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   1   0   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+ 0   0   1   0   1   0   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Performs a logical or on the operand register and the immediate and stores the result in the destination register
+```
+
+# ORS (REG) --- SETS FLAGS
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   1   1   0   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Performs a logical or on the operand registers and stores the result in the destination register
+```
+
+# ORS (IMM) --- SETS FLAGS
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   1   1   1   0   0  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
     >> Performs a logical or on the operand register and the immediate and stores the result in the destination register
 ```
 
@@ -119,7 +154,21 @@
 # XOR (IMM)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   1   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+ 0   0   1   0   1   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
+    >> Performs a logical xor on the operand register and the immediate and stores the result in the destination register
+```
+
+# XORS (REG) --- SETS FLAGS
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   1   1   1   1   0   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+    >> Performs a logical xor on the operand registers and stores the result in the destination register
+```
+
+# XORS (IMM) --- SETS FLAGS
+```
+31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
+ 0   0   1   1   1   0   1  [dest reg]  [op 1 reg]   x   x   x  [------------------- immediate --------------------]
     >> Performs a logical xor on the operand register and the immediate and stores the result in the destination register
 ```
 
@@ -137,7 +186,6 @@
     >> Branches to an offset defined by the immediate (signed)
 ```
 
-
 # B.cond (IMM)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
@@ -153,14 +201,12 @@
     >> Branches to an offset defined by the value of the target register
 ```
 
-
 # HALT
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
  1   1   x   1   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
     >> Sets a flag to stop the CPU
 ```
-
 
 # LSL
 ```
@@ -175,7 +221,6 @@
  0   0   0   x   1   x   1  [dest reg]  [shft reg]   x   x   x  [------------------- immediate --------------------]
     >> Right shifts the shift register by the value in immediate and stores it in the destination register
 ```
-
 
 # CLR
 ```
