@@ -8,7 +8,7 @@
 # MOVT
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   0   0   x   0   0   0  [targ reg]   x   x   x   x   x   x  [------------------- immediate --------------------]
+ 0   0   0   x   0   0   1  [targ reg]   x   x   x   x   x   x  [------------------- immediate --------------------]
     >> Moves a 16 bit immediate value into the upper 2 bytes of a target register
 ```
 
@@ -180,14 +180,14 @@
 # CLR
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   0   0   x   0   1   0  [targ reg]  x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   0   0   x   0   1   0  [targ reg]  x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x 
     >> Clears the entire contents of the target register
 ```
 
 # SET
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   0   0   x   0   1   1  [targ reg]  x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   0   0   x   0   1   1  [targ reg]  x   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x 
     >> Sets all bits of the entire contents of the target register
 ```
 
