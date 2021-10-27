@@ -1,0 +1,40 @@
+{
+    "mov" : {
+        "op_code": "mov",
+        "args": [
+            {"Reg": [24,22]},
+            {"Imm": [15,0]}
+        ],
+        "instr": "0000000"
+    },
+    "movt" : {
+        "op_code": "movt",
+        "args": [
+            {"Reg": [24,22]},
+            {"Imm": [15,0]}
+        ],
+        "instr": "0000001"
+    },
+    "nop" : {
+        "op_code": "nop",
+        "args": [],
+        "instr": "1100100"
+    },
+    "r_load" : {
+        "op_code": "load",
+        "args": [
+            {"Reg": [24,22]},
+            {"Reg": [21,19]}
+        ],
+        "instr": "1000000"
+    },
+    "o_load" : {
+        "op_code": "load",
+        "args": [
+            {"Reg": [24,22]},
+            {"Reg": [21,19]},
+            {"Imm": [15,0]}
+        ],
+        "instr": "1000000"
+    }
+}
