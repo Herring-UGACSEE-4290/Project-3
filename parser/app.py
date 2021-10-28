@@ -41,11 +41,9 @@ def assemble_from_token(dict):
 
 
 def pseudo_mnemonics(line):
-    if line.pneumonic == "org":
+    if line.mnemonic == "org":
         addr = 0
         return True
-    elif line.pneumonic == "mov32":
-        return True
-    elif line.pneumonic == "rmb":
+    elif line.mnemonic == "mov32":
         return True
     return False
