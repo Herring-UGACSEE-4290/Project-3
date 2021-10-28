@@ -22,7 +22,7 @@
 # LOAD
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 1   0   x   x   x   x   0  [targ reg]  [pntr reg]   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 1   0   x   x   x   x   0  [targ reg]  [pntr reg]   x   x   x  [-------------------- offset ----------------------]
     >> Loads the value from memory at location of the pointer register into the target register
 ```
 
@@ -36,7 +36,7 @@
 # ADD (REG)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   0   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  x    x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   0   0   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Adds the values of the operand registers and stores this to the destination register
 ```
 
@@ -50,7 +50,7 @@
 # ADDS (REG) --- SETS FLAGS
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   1   0   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  x    x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   1   0   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Adds the values of the operand registers and stores this to the destination register
 ```
 
@@ -64,7 +64,7 @@
 # SUB (REG)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   0   1   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   0   0   1   0  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Subtracts operand 2 from operand 1 and stores this to the destination register
 ```
 # SUB (IMM)
@@ -77,7 +77,7 @@
 # CMP [SUBS] (REG) --- SETS FLAGS
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   1   0   1   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   1   0   1   0  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Subtracts operand 2 from operand 1 and stores this to the destination register
 ```
 
@@ -91,7 +91,7 @@
 # AND (REG)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   0   1   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   0   0   1   1  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Performs a logical and on the operand registers and stores the result in the destination register
 ```
 
@@ -105,7 +105,7 @@
 # ANDS (REG) --- SETS FLAGS
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   1   0   1   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   1   0   1   1  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Performs a logical and on the operand registers and stores the result in the destination register
 ```
 
@@ -119,7 +119,7 @@
 # OR (REG)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   1   0   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   0   1   0   0  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Performs a logical or on the operand registers and stores the result in the destination register
 ```
 
@@ -133,7 +133,7 @@
 # ORS (REG) --- SETS FLAGS
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   1   1   0   0  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   1   1   0   0  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Performs a logical or on the operand registers and stores the result in the destination register
 ```
 
@@ -147,7 +147,7 @@
 # XOR (REG)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   0   1   0   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   0   1   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Performs a logical xor on the operand registers and stores the result in the destination register
 ```
 
@@ -161,7 +161,7 @@
 # XORS (REG) --- SETS FLAGS
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 0   1   1   1   1   0   1  [dest reg]  [op 1 reg]  [op 2 reg]   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 0   1   1   1   1   0   1  [dest reg]  [op 1 reg]  [op 2 reg]  [-------------------- offset ----------------------]
     >> Performs a logical xor on the operand registers and stores the result in the destination register
 ```
 
@@ -197,7 +197,7 @@
 # BR (REG)
 ```
 31  30  29  28  27  26  25  24  23  22  21  20  19  18  17  16  15  14  13  12  11  10  9  8  7  6  5  4  3  2  1  0
- 1   1   x   0   0   1   0  [targ reg]   x   x   x   x   x   x   x   x   x   x   x   x  x  x  x  x  x  x  x  x  x  x
+ 1   1   x   0   0   1   0  [targ reg]   x   x   x   x   x   x  [-------------------- offset ----------------------]
     >> Branches to an offset defined by the value of the target register
 ```
 
