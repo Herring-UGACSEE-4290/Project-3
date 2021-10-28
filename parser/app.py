@@ -104,10 +104,10 @@ def disassemble() -> None:
 
 addr = 0
 labels = {}
-def assemble_from_token(dict):
+def assemble_from_token(lines):
     f = open("instructions.json")
     instrs = json.load(f)
-    for i, line in enumerate(dict):
+    for i, line in enumerate(lines):
         if line.label is not None:
             labels[line.label].append(addr)
         if(pseudo_mnemonics(line)):
