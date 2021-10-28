@@ -24,6 +24,8 @@ def load_asm(filename):
    re_label = re.compile('^(\w+):\s*$|^\.(\w+)\s*$')
    re_comment = re.compile('.*;(.*)$')
    re_args = re.compile('([^,\s][^\,]*[^,\s]*)')
+   re_cond = re.compile('[bB]\.([a-zA-Z]+)')
+   cond = None
 
    asm_data = []
    keys = ["label", "mnemonic", "args", "addr", "comment"]
@@ -43,6 +45,12 @@ def load_asm(filename):
       if mnemonic_obj:
          mnem_end_index = mnemonic_obj.end(1)
          mnemonic = mnemonic_obj.group(1)
+
+         #save condtion if b.cond in cond variable, rename mnemonic to b.cond
+         if 'B.' in mnemonic or 'b.' in mnemonic:
+            cond = re_cond.findall(mnemonic)[0]
+            mnemonic = 'b.cond'
+
          d["mnemonic"] = mnemonic
 
 
@@ -58,14 +66,12 @@ def load_asm(filename):
          
          d["label"] = label.replace(' ', '').replace('.', '').replace('\t', '').replace(':', '') #have to cleaup label, there may be a better regex
 
-      
       #find comment
       comment_obj = re_comment.match(line)
       if comment_obj:
          comment_start_index = comment_obj.start(1)
          comment = comment_obj.group(1)
          d["comment"] = comment
-
 
       #find args
       if not label_obj:
@@ -76,7 +82,7 @@ def load_asm(filename):
 
          args = re_args.findall(line)
 
-         #convert hex to int
+         #convert hex string to int
          for i,arg in enumerate(args):
             if '#0x' in arg:
                args[i] = int(arg[3:],16)
@@ -86,6 +92,11 @@ def load_asm(filename):
             if type(arg) == str: 
                if 'x' in arg or 'X' in arg:
                   args[i] = int(arg[1:])
+
+         #add condition to args if needed and reset cond
+         if cond:
+            args.insert(0, cond)
+            cond = None
          
          #ensure args stays None type if empty list
          if args:
@@ -93,6 +104,11 @@ def load_asm(filename):
 
       asm_data.append(d)
    return asm_data
+
+data = load_asm("test.asm")
+
+for i in data:
+   print(i)
 
 @click.command()
 @click.argument('inputfile')
