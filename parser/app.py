@@ -20,13 +20,24 @@ def disassemble() -> None:
        (a .txt file).'''
     pass
 
+
 addr = 0
+labels = {}
 def assemble_from_token(dict):
     f = open("instructions.json")
     instrs = json.load(f)
-    for line in dict:
+    for i, line in enumerate(dict):
+        if line.label is not None:
+            labels[line.label].append(addr)
         if(pseudo_mnemonics(line)):
-            continue
+            pass
+        else:
+            addr += 4
+
+        
+        
+
+
 
 
 def pseudo_mnemonics(line):
