@@ -16,7 +16,7 @@ Like ARMv8, instructions have a fixed width of 32-bits, and the addressing space
 
 ## Addressing Modes
 
-Only two addressing modes: Immediate Mode and Register Mode.
+Only three addressing modes: Immediate Mode Register Mode, and Register Offset Mode.
 
 ### Immediate Addressing
 
@@ -24,7 +24,11 @@ Immediate addressing uses up to a single source register and an immediate value,
 
 ### Register Addressing
 
-Register addressing uses up to two source registers and stores the result into a single desination register.
+Register addressing uses up to two source registers and stores the result into a single destination register.
+
+### Register Offset Addressing
+
+Register Offset addressing is the same as Register addressing, with the addition of a signed 16-bit offset to an address in a source register.
 
 ## System Flags
 
