@@ -179,7 +179,7 @@ def assemble_opcode(dict):
             for inst in instrs:
                 # Matches the op_code mnemonic and the number of args
                 if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and len(instrs[inst]["args"]) == len(line["args"]):
-                    print(line)
+                    # print(line)
                     # ors the op_code as the first 7 bits
                     opcode = opcode | int(instrs[inst]["instr"], 2)
                     # Gets the number of leading zeros for math later
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     dict = load_asm("test.asm")
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
-    print(len(opcodes))
-    # opcodes = fill_labels(opcodes)
-    # write_file(opcodes)
+    # print(len(opcodes))
+    opcodes = fill_labels(opcodes)
+    write_file(opcodes)
     
