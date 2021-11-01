@@ -1,0 +1,17 @@
+altgraph==0.17.2
+attrs==21.2.0
+autopep8==1.6.0
+build==0.7.0
+click==8.0.3
+iniconfig==1.1.1
+packaging==21.2
+pep517==0.12.0
+pluggy==1.0.0
+py==1.10.0
+pycodestyle==2.8.0
+pyinstaller==4.6
+pyinstaller-hooks-contrib==2021.3
+pyparsing==2.4.7
+pytest==6.2.5
+toml==0.10.2
+tomli==1.2.2

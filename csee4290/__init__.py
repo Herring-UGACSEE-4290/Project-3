@@ -2,28 +2,28 @@
 # Author(s): CSEE 4290 Fall 2021
 
 import click
+import sys
+
 from csee4290.assembler import assemble
 from csee4290.disassembler import disassemble
 
+
 @click.group()
-def entry_point() -> None:
-   pass
-
-entry_point.add_command(assemble)
-entry_point.add_command(disassemble)
-
-
-#def assemble(input_file, instruction_file) -> None:
-#    '''Assembles the inputfile (an .asm file) into a format that can be ran by an implementation of
-#       the CIA (a .mem file).'''
-#    print(f'Assembling {input_file} to with instructions from {instruction_file} ...')
+def cli() -> None:
+    '''The entry point for this applicaiton. This function allows click to route the program flow
+       to the correct function given the arguments that are passed.'''
+    pass
 
 
+# Registering the assemble and disassemvble functions as candidates to be from from the terminal.
+cli.add_command(assemble)
+cli.add_command(disassemble)
 
-#@main.command()
-#@click.argument('input_file')
-#@click.option('-I', '--instruction-file')
-#def disassemble(input_file, instruction_file) -> None:
-    #'''Disassembles the inputfile (a .mem file) into a listing file that can be used for debugging
-    #   (a .txt file).'''
-#    print(f'Disassembling {input_file} with instructions from {instruction_file}...')
+
+# Detects whether or not this scipt has been frozen and, if so, calls the entry point when this
+# script is run.
+#
+# This was added specifically for use with pyinstaller, so that produced executables can run
+# Click apps.
+if getattr(sys, 'frozen', False):
+    cli(sys.argv[1:])
