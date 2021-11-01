@@ -1,19 +1,56 @@
-# File: app.py
+# File: assembler.py
 # Author(s): CSEE 4290 Fall 2021
 
-import click
 import re
 import json
 
+import click
+from click.termui import prompt
 
 @click.command()
-@click.argument('inputfile')
-def assemble() -> None:
-    '''Assembles the inputfile (a .asm file) into a format that can be ran by an implementation of
-       the CIA (a .mem file).'''
-    
+@click.argument('input_file')
+@click.option('-o', '--output-file', prompt=True)
+@click.option('-I', '--instruction-file', prompt=True)
+def assemble(input_file: str, output_file: str, instruction_file: str) -> None:
+    '''Converts the contents of the assembly source code found in input_file into hex machine
+       code that will be written to output_file using the instructions found in
+       instruction_file.'''
+    print(f'Assembling {input_file} into {output_file} using {instruction_file} ......')
+
+def asm_to_hex(source_code: str) -> str:
+    '''Returns the hexadecimal equivalent of the opcode that source_code reduces to.'''
     pass
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 def load_asm(filename):
    with open(filename) as asm_file:
       lines = asm_file.read().splitlines()
@@ -109,15 +146,9 @@ data = load_asm("test.asm")
 
 for i in data:
    print(i)
+'''
 
-@click.command()
-@click.argument('inputfile')
-def disassemble() -> None:
-    '''Disassembles the inputfile (a .mem file) into a listing file that can be used for debugging
-       (a .txt file).'''
-    pass
-
-
+'''
 addr = 0
 labels = {}
 def assemble_from_token(lines):
@@ -130,7 +161,6 @@ def assemble_from_token(lines):
             pass
         else:
             addr += 4
-
         
         
 
@@ -144,3 +174,5 @@ def pseudo_mnemonics(line):
     elif line.mnemonic == "mov32":
         return True
     return False
+'''
+
