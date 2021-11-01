@@ -6,6 +6,26 @@ import re
 import json
 
 
+condition_lookup = {
+    "eq": 0,
+    "ne": 1,
+    "cs": 2,
+    "hs": 2,
+    "cc": 3,
+    "lo": 3,
+    "mi": 4,
+    "pl": 2,
+    "vs": 6,
+    "vc": 7,
+    "hi": 8,
+    "ls": 9,
+    "ge": 10,
+    "lt": 11,
+    "gt": 12,
+    "le": 13,
+    "al": 14
+}
+
 @click.command()
 @click.argument('inputfile')
 def assemble() -> None:
@@ -101,14 +121,16 @@ def load_asm(filename):
          #ensure args stays None type if empty list
          if args:
             d["args"] = args
+         else:
+            d["args"] = []
 
       asm_data.append(d)
    return asm_data
 
-data = load_asm("test.asm")
+# data = load_asm("test.asm")
 
-for i in data:
-   print(i)
+# for i in data:
+#    print(i)
 
 @click.command()
 @click.argument('inputfile')
@@ -117,30 +139,92 @@ def disassemble() -> None:
        (a .txt file).'''
     pass
 
+def pseudo_mnemonics(line):
+    if line["mnemonic"] == "org":
+        addr = 0
+        return True
+    elif line["mnemonic"] == "mov32":
+        return True
+    return False
 
 addr = 0
 labels = {}
 def assemble_from_token(lines):
+    global addr
+    global labels
     f = open("instructions.json")
     instrs = json.load(f)
     for i, line in enumerate(lines):
-        if line.label is not None:
-            labels[line.label].append(addr)
+        if line["label"] is not None:
+            labels[line["label"]] = addr
         if(pseudo_mnemonics(line)):
             pass
         else:
             addr += 4
-
         
         
+def assemble_opcode(dict):
+    instrs = None
+    opcodes = []
+    with open("instructions.json") as f:
+       instrs = json.load(f)    
+    for (lineNum, line) in enumerate(dict):
+        if line["label"]:
+            continue
+        opcode = 0
+        label = None
+        if(pseudo_mnemonics(line)):
+            continue
+        else:
+            for inst in instrs:
+                # Matches the op_code mnemonic and the number of args
+                if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and len(instrs[inst]["args"]) == len(line["args"]):
+                    print(line)
+                    # ors the op_code as the first 7 bits
+                    opcode = opcode | int(instrs[inst]["instr"], 2)
+                    # Gets the number of leading zeros for math later
+                    leading_zero = len(instrs[inst]["instr"]) - len(bin(opcode)[2:])
+                    # Gets the arguments
+                    for (index, arg) in enumerate(instrs[inst]["args"]):
+                        if arg.get("Reg"):
+                            # Shifts the current op_code right 3 and adds the register
+                            opcode = (opcode << 3) | line["args"][index]
+                            # Encodes the flags
+                        elif arg.get("Flg"):
+                            # Shifts the op_code right 3 and adds the flag
+                            opcode = (opcode << 4 | condition_lookup[line["args"][index].lower()])
+                            # Encodes the Immediate value
+                        elif arg.get("Imm"):
+                            # Shifts the op_code to make the immediate bits 15-0
+                            offset = 32 - leading_zero
+                            opcode = (opcode << (offset - len(bin(opcode)[2:])))
+                            try:
+                                opcode = opcode | line["args"][index]
+                            except:
+                                label = line["args"][index]
+                    # Ensures to opcode is 32 bits if it does not have leading zeros
+                    if len(bin(opcode)[2:]) < 32 and not leading_zero:
+                        opcode = opcode << (32 - len(bin(opcode)[2:]))
+                    opcodes.append({"opcode":opcode,"label":label})
+    return opcodes
+
+def fill_labels(opcodes):
+    for opcode in opcodes:
+        if opcode["label"]:
+            opcode["opcode"] = opcode["opcode"] | labels[opcode["label"]]
+    return opcodes
+
+def write_file(opcodes):
+    with open("output.mem","a") as file:
+        for opcode in opcodes:
+            file.write('{0:08X} \n'.format(opcode["opcode"]))
 
 
-
-
-def pseudo_mnemonics(line):
-    if line.mnemonic == "org":
-        addr = 0
-        return True
-    elif line.mnemonic == "mov32":
-        return True
-    return False
+if __name__ == '__main__':
+    dict = load_asm("test.asm")
+    assemble_from_token(dict)
+    opcodes = assemble_opcode(dict)
+    print(len(opcodes))
+    # opcodes = fill_labels(opcodes)
+    # write_file(opcodes)
+    
