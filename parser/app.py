@@ -289,6 +289,11 @@ def load_asm(filename):
 
     line_data = append_instruction_number(line_data)
 
+    #turn None types into empty lists for 'args'
+    for line in line_data:
+        if not line['args']:
+            line['args'] = []
+
     return line_data
 
 def pseudo_mnemonics(line):
