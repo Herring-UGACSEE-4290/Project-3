@@ -26,14 +26,6 @@ condition_lookup = {
     "al": 14
 }
 
-@click.command()
-@click.argument('inputfile')
-def assemble() -> None:
-    '''Assembles the inputfile (a .asm file) into a format that can be ran by an implementation of
-       the CIA (a .mem file).'''
-
-    pass
-
 def pop_header(lines, line_data):
     '''
     remove header from lines data for ease of parsing. returns header as list of strings if desired
@@ -75,8 +67,6 @@ def parse_comments(line):
 
     return line, comment
     
-
-
 def del_blanklines(lines, line_data):
     '''
     remove line if the only data is whitespace
@@ -120,7 +110,6 @@ def parse_label(line):
     label = label_obj.group(1) #group 0 contains the entire string, group 1 contains the match
 
     return label
-
     
 def parse_instruction(line):
 
@@ -171,56 +160,53 @@ def parse_arguments(line, cond):
     args = line.split(',')
 
     if cond:
-        temp = {'condition': None}
-        temp['condition'] = cond
+        temp = {'Flg': None}
+        temp['Flg'] = cond
 
         args.append(temp)
 
     if len(args) == 0:
-        return None
+        return []
 
 
     conditions = ['eq', 'ne', 'cs', 'hs', 'cc', 'lo', 'mi', 'pl', 'vs', 'vc', 'hi', 'ls', 'ge', 'lt', 'gt', 'le', 'al']
 
-    print(args)
-
-
     #convert hex string to int
     for i,arg in enumerate(args):
 
-        print(arg)
+        # print(arg)
 
         if '#0x' in arg:
-            temp = {'immediate': None}
-            temp['immediate']= int(arg[3:],16)
+            temp = {'Imm': None}
+            temp['Imm']= int(arg[3:],16)
             args[i] = temp
             continue
 
         if type(arg) == str: #check type now that some elements have changed
             if 'r' == arg[0] or 'R' == arg[0]:
-                temp = {'reg': None}
-                temp['reg'] = int(arg[1:])
+                temp = {'Reg': None}
+                temp['Reg'] = int(arg[1:])
                 args[i] = temp
                 continue
 
         if type(arg) == str:
             if '#' in arg: #since already checked hex, # must mean shift value
-                temp = {'shift': None}
-                temp['shift'] = int(arg[1:])
+                temp = {'Imm': None}
+                temp['Imm'] = int(arg[1:])
                 args[i] = temp
                 continue
 
         if type(arg) == str:
             if arg.lower() in conditions:
-                temp = {'condition': None}
-                temp['condition'] = arg.lower()
+                temp = {'Flg': None}
+                temp['Flg'] = arg.lower()
                 args[i] = temp
                 continue
 
         if type(arg) == str: #assume the last possible argument would be branch target
-            print(arg)
-            temp = {'target': None}
-            temp['target'] = arg
+            # print(arg)
+            temp = {'Reg': None}
+            temp['Reg'] = arg
             args[i] = temp
             continue
 
@@ -241,7 +227,6 @@ def append_instruction_number(line_data):
 
 
     return line_data
-
 
 
 def load_asm(filename):
@@ -306,18 +291,6 @@ def load_asm(filename):
 
     return line_data
 
-# data = load_asm("test.asm")
-
-# for i in data:
-#    print(i)
-
-@click.command()
-@click.argument('inputfile')
-def disassemble() -> None:
-    '''Disassembles the inputfile (a .mem file) into a listing file that can be used for debugging
-       (a .txt file).'''
-    pass
-
 def pseudo_mnemonics(line):
     if line["mnemonic"] == "org":
         addr = 0
@@ -340,7 +313,15 @@ def assemble_from_token(lines):
             pass
         else:
             addr += 4
-        
+
+def get_arg_keys(arg_list):
+    keys = []
+    if arg_list == None:
+        print("Return None")
+        return None
+    for arg in arg_list:
+        keys.append(list(arg.keys())[0])
+    return keys   
         
 def assemble_opcode(dict):
     instrs = None
@@ -355,36 +336,43 @@ def assemble_opcode(dict):
         if(pseudo_mnemonics(line)):
             continue
         else:
+            print(line)
             for inst in instrs:
                 # Matches the op_code mnemonic and the number of args
-                if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and len(instrs[inst]["args"]) == len(line["args"]):
-                    # print(line)
+                if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"]):
+                    print("Inst: ",get_arg_keys(instrs[inst]["args"]))
                     # ors the op_code as the first 7 bits
                     opcode = opcode | int(instrs[inst]["instr"], 2)
                     # Gets the number of leading zeros for math later
                     leading_zero = len(instrs[inst]["instr"]) - len(bin(opcode)[2:])
-                    # Gets the arguments
-                    for (index, arg) in enumerate(instrs[inst]["args"]):
-                        if arg.get("Reg"):
-                            # Shifts the current op_code right 3 and adds the register
-                            opcode = (opcode << 3) | line["args"][index]
-                            # Encodes the flags
-                        elif arg.get("Flg"):
-                            # Shifts the op_code right 3 and adds the flag
-                            opcode = (opcode << 4 | condition_lookup[line["args"][index].lower()])
-                            # Encodes the Immediate value
-                        elif arg.get("Imm"):
-                            # Shifts the op_code to make the immediate bits 15-0
-                            offset = 32 - leading_zero
-                            opcode = (opcode << (offset - len(bin(opcode)[2:])))
-                            try:
-                                opcode = opcode | line["args"][index]
-                            except:
-                                label = line["args"][index]
+                    if not instrs[inst]["args"] == None:
+                        # Gets the arguments
+                        for (index, arg) in enumerate(line["args"]):
+                            if arg.get("Reg"):
+                                # Shifts the current op_code right 3 and adds the register
+                                opcode = (opcode << 3)
+                                try:
+                                    opcode = opcode | int(arg["Reg"][1:])
+                                except:
+                                    label = arg["Reg"]
+                                # Encodes the flags
+                            elif arg.get("Flg"):
+                                # Shifts the op_code right 3 and adds the flag
+                                opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
+                                # Encodes the Immediate value
+                            elif arg.get("Imm"):
+                                # Shifts the op_code to make the immediate bits 15-0
+                                offset = 32 - leading_zero
+                                opcode = (opcode << (offset - len(bin(opcode)[2:])))
+                                try:
+                                    opcode = opcode | arg["Imm"]
+                                except:
+                                    print("Something wrong with Imm")
                     # Ensures to opcode is 32 bits if it does not have leading zeros
                     if len(bin(opcode)[2:]) < 32 and not leading_zero:
                         opcode = opcode << (32 - len(bin(opcode)[2:]))
                     opcodes.append({"opcode":opcode,"label":label})
+                    print(hex(opcode))
     return opcodes
 
 def fill_labels(opcodes):
