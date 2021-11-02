@@ -34,98 +34,277 @@ def assemble() -> None:
     
     pass
 
-def load_asm(filename):
-   with open(filename) as asm_file:
-      lines = asm_file.read().splitlines()
+def pop_header(lines, line_data):
+    '''
+    remove header from lines data for ease of parsing. returns header as list of strings if desired
+    removes corresponding dicts from line_data
+    '''
+    start_found = False
+    for i,line in enumerate(lines):
+        if line[:6] == "start:":
+            start_found = True
+            header_index = i
+            header = lines[:header_index]
+
+    if not start_found:
+        print("start: does not begin assembly")
+        quit()
+
+    lines = lines[header_index:]
+    line_data = line_data[header_index:]
+
+    return lines, line_data, header
+
+def parse_comments(line):
+    '''
+    remove comment from line
+
+    return line and comment
+    '''
+
+    comment = None
+
+    re_comment = re.compile('.*;(.*)$')
+
+    comment_obj = re_comment.match(line)
+
+    if comment_obj:
+        comment_start_index = comment_obj.start(1)
+        comment = comment_obj.group(1)
+        line = line[:comment_start_index-1]
+
+    return line, comment
+    
 
 
-   #regex for each component
-   re_mnem = re.compile('\s+([A-Za-z.]+).*$')
-   re_label = re.compile('^(\w+):\s*$|^\.(\w+)\s*$')
-   re_comment = re.compile('.*;(.*)$')
-   re_args = re.compile('([^,\s][^\,]*[^,\s]*)')
-   re_cond = re.compile('[bB]\.([a-zA-Z]+)')
-   cond = None
+def del_blanklines(lines, line_data):
+    '''
+    remove line if the only data is whitespace
+    remove corresponding dicts from line_data
+    '''
+    re_blank = re.compile('^\s*$')
+    for i, line in enumerate(lines):
+        blank_obj = re_blank.match(line)
+        if blank_obj:
+            del lines[i]
+            del line_data[i]
 
-   asm_data = []
-   keys = ["label", "mnemonic", "args", "addr", "comment"]
+    return lines, line_data
 
-   for line in lines:
+def get_line_type(line, type_label, type_instruction, error):
+    '''
+    input line as a string, return true or false for label, instruction or error
+    '''
 
-      #skip iteration if line  is empty or only whitespace
-      stripped_line = line.replace('\t','').replace(' ','')
-      if not stripped_line:
-         continue
+    re_label = re.compile('^([a-zA-Z0-9_]+):\s*$')
+    re_instruction = re.compile('^\s+\w+')
 
+    label_obj = re_label.match(line)
+    instruction_obj = re_instruction.match(line)
 
-      d = dict.fromkeys(keys)
+    if label_obj and not instruction_obj:
+        type_label = True
 
-      #find mnemonic
-      mnemonic_obj = re_mnem.match(line)
-      if mnemonic_obj:
-         mnem_end_index = mnemonic_obj.end(1)
-         mnemonic = mnemonic_obj.group(1)
+    elif instruction_obj and not label_obj:
+        type_instruction = True
+        
+    else:
+        error = "Could not determine if line is instruction or label"
 
-         #save condtion if b.cond in cond variable, rename mnemonic to b.cond
-         if 'B.' in mnemonic or 'b.' in mnemonic:
+    return type_label, type_instruction, error
+
+def parse_label(line):
+    re_label = '^([a-zA-Z0-9_]+):\s*$'
+    label_obj = re.search(re_label, line)
+    
+    label = label_obj.group(1) #group 0 contains the entire string, group 1 contains the match
+
+    return label
+
+    
+def parse_instruction(line):
+
+    re_mnem = re.compile('\s+([A-Za-z.]+).*$')
+    re_cond = re.compile('[bB]\.([a-zA-Z]+)')
+    
+    mnemonic_obj = re_mnem.search(line)
+
+    cond = None
+    mnem_end_index = None
+    mnemonic = None
+    error = None
+    target = None
+    args = []
+
+    if mnemonic_obj:
+        mnem_end_index = mnemonic_obj.end(1)
+        mnemonic = mnemonic_obj.group(1)
+
+        #save condtion if b.cond in cond variable, rename mnemonic to b.cond
+        if 'B.' in mnemonic or 'b.' in mnemonic:
             cond = re_cond.findall(mnemonic)[0]
             mnemonic = 'b.cond'
 
-         d["mnemonic"] = mnemonic
+
+        #remove mnemonic from line within the function scope for easier parsing
+        line = line[mnem_end_index:]
+        
+        args = parse_arguments(line, cond)
+        
+    else:
+        error = "could not parse mnemonic"
+        return mnemonic, args, error
+
+    return mnemonic, args, error
+
+def parse_arguments(line, cond):
+    '''
+    return a list of singleton dictionaries with argument type as label
+    types: register, immediate, shift, condition
+    '''
+
+    line = line.replace('\t', '').replace(' ', '')
+
+    if not line:
+        return None
+
+    args = line.split(',')
+
+    if cond:
+        temp = {'condition': None}
+        temp['condition'] = cond
+
+        args.append(temp)
+
+    if len(args) == 0:
+        return None
 
 
-      #find label
-      label_obj = re_label.match(line)
-      if label_obj:
-         #label returns multiple match groups, there may be a better regex
-         if label_obj.group(0):
-            label = label_obj.group(0)
-         elif label_obj.group(1):
-            label = label_obj.group(1)
-         label.replace('.', '')
-         
-         d["label"] = label.replace(' ', '').replace('.', '').replace('\t', '').replace(':', '') #have to cleaup label, there may be a better regex
+    conditions = ['eq', 'ne', 'cs', 'hs', 'cc', 'lo', 'mi', 'pl', 'vs', 'vc', 'hi', 'ls', 'ge', 'lt', 'gt', 'le', 'al']
 
-      #find comment
-      comment_obj = re_comment.match(line)
-      if comment_obj:
-         comment_start_index = comment_obj.start(1)
-         comment = comment_obj.group(1)
-         d["comment"] = comment
+    print(args)
 
-      #find args
-      if not label_obj:
-         if comment_obj:
-            line = line[mnem_end_index:comment_start_index-1]
-         else:
-            line = line[mnem_end_index:]
 
-         args = re_args.findall(line)
+    #convert hex string to int
+    for i,arg in enumerate(args):
 
-         #convert hex string to int
-         for i,arg in enumerate(args):
-            if '#0x' in arg:
-               args[i] = int(arg[3:],16)
-         
-         #convert register string to int
-         for i,arg in enumerate(args):
-            if type(arg) == str: 
-               if 'x' in arg or 'X' in arg:
-                  args[i] = int(arg[1:])
+        print(arg)
 
-         #add condition to args if needed and reset cond
-         if cond:
-            args.insert(0, cond)
-            cond = None
-         
-         #ensure args stays None type if empty list
-         if args:
-            d["args"] = args
-         else:
-            d["args"] = []
+        if '#0x' in arg:
+            temp = {'immediate': None}
+            temp['immediate']= int(arg[3:],16)
+            args[i] = temp
+            continue
 
-      asm_data.append(d)
-   return asm_data
+        if type(arg) == str: #check type now that some elements have changed
+            if 'r' == arg[0] or 'R' == arg[0]:
+                temp = {'reg': None}
+                temp['reg'] = int(arg[1:])
+                args[i] = temp
+                continue
+
+        if type(arg) == str:
+            if '#' in arg: #since already checked hex, # must mean shift value
+                temp = {'shift': None}
+                temp['shift'] = int(arg[1:])
+                args[i] = temp
+                continue
+
+        if type(arg) == str:
+            if arg.lower() in conditions:
+                temp = {'condition': None}
+                temp['condition'] = arg.lower()
+                args[i] = temp
+                continue
+
+        if type(arg) == str: #assume the last possible argument would be branch target
+            print(arg)
+            temp = {'target': None}
+            temp['target'] = arg
+            args[i] = temp
+            continue
+
+    return args
+
+def append_instruction_number(line_data):
+    '''
+    input line_data, return line_data with instruction number for instructions (not for labels)
+    '''
+
+    count = 0
+    for i, line_dict in enumerate(line_data):
+        if not line_dict["label"]:
+            line_data[i]["instruction number"] = count
+            count += 1
+        else:
+            continue
+
+
+    return line_data
+
+
+
+def load_asm(filename):
+    line_data = []
+    keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "instruction number", "errors"]
+    header = None
+
+    with open(filename) as file:
+        lines = file.read().splitlines()
+
+    #initialize line_data and populate line number
+    for i, line in enumerate(lines):
+        d = dict.fromkeys(keys)
+        d["line number"] = i + 1
+        line_data.append(d)
+
+    #first do cleanup on all lines
+    lines, line_data, header = pop_header(lines, line_data) #header does not do anything. kept for potential future use
+
+    lines, line_data = del_blanklines(lines, line_data)
+
+    #now parse line by line
+    for i, line in enumerate(lines):
+
+        type_label = False
+        type_instruction = False
+        error = None
+
+        line, comment = parse_comments(line)
+        if comment:
+            line_data[i]["comment"] = comment
+
+        
+        type_label, type_instruction, error = get_line_type(line, type_label, type_instruction, error)
+        if error:
+            line_data[i]["error"] = error
+            continue
+
+        if type_label:
+
+            label = parse_label(line)
+            if error:
+                line_data[i]["error"] = error
+                continue
+
+            line_data[i]["label"] = label
+
+        elif type_instruction:
+
+            mnemonic, args, error = parse_instruction(line)
+            if error:
+                line_data[i]["error"] = error
+                continue
+
+            line_data[i]["mnemonic"] = mnemonic
+            line_data[i]["args"] = args
+        else:
+            print("typing error") #handle this the correct way
+            continue
+
+    line_data = append_instruction_number(line_data)
+
+    return line_data
 
 # data = load_asm("test.asm")
 
