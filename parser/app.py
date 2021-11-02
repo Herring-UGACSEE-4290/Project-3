@@ -174,7 +174,6 @@ def parse_arguments(line, cond):
     #convert hex string to int
     for i,arg in enumerate(args):
 
-        # print(arg)
 
         if '#0x' in arg:
             temp = {'Imm': None}
