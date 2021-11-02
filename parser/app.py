@@ -4,7 +4,7 @@
 import click
 import re
 import json
-
+import sys
 
 condition_lookup = {
     "eq": 0,
@@ -321,12 +321,12 @@ def assemble_from_token(lines):
 
 def get_arg_keys(arg_list):
     keys = []
-    if arg_list == None:
-        print("Return None")
-        return None
-    for arg in arg_list:
-        keys.append(list(arg.keys())[0])
-    return keys   
+    try:
+        for arg in arg_list:
+            keys.append(list(arg.keys())[0])
+        return keys
+    except TypeError:
+        return [] 
         
 def assemble_opcode(dict):
     instrs = None
@@ -336,48 +336,49 @@ def assemble_opcode(dict):
     for (lineNum, line) in enumerate(dict):
         if line["label"]:
             continue
+        print(line)
         opcode = 0
+        opcode_len = 0
         label = None
         if(pseudo_mnemonics(line)):
             continue
         else:
-            print(line)
             for inst in instrs:
                 # Matches the op_code mnemonic and the number of args
                 if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"]):
-                    print("Inst: ",get_arg_keys(instrs[inst]["args"]))
                     # ors the op_code as the first 7 bits
                     opcode = opcode | int(instrs[inst]["instr"], 2)
-                    # Gets the number of leading zeros for math later
-                    leading_zero = len(instrs[inst]["instr"]) - len(bin(opcode)[2:])
-                    if not instrs[inst]["args"] == None:
-                        # Gets the arguments
-                        for (index, arg) in enumerate(line["args"]):
-                            if arg.get("Reg"):
-                                # Shifts the current op_code right 3 and adds the register
-                                opcode = (opcode << 3)
-                                try:
-                                    opcode = opcode | int(arg["Reg"][1:])
-                                except:
-                                    label = arg["Reg"]
-                                # Encodes the flags
-                            elif arg.get("Flg"):
-                                # Shifts the op_code right 3 and adds the flag
-                                opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
-                                # Encodes the Immediate value
-                            elif arg.get("Imm"):
-                                # Shifts the op_code to make the immediate bits 15-0
-                                offset = 32 - leading_zero
-                                opcode = (opcode << (offset - len(bin(opcode)[2:])))
-                                try:
-                                    opcode = opcode | arg["Imm"]
-                                except:
-                                    print("Something wrong with Imm")
+                    opcode_len = opcode_len + 7
+                    # Gets the arguments
+                    for (index, arg) in enumerate(line["args"]):
+                        if arg.get("Reg"):
+                            # Shifts the current op_code right 3 and adds the register
+                            opcode = (opcode << 3)
+                            opcode_len = opcode_len + 3
+                            try:
+                                opcode = opcode | int(arg["Reg"][1:])
+                            except:
+                                label = arg["Reg"]
+                            # Encodes the flags
+                        elif arg.get("Flg"):
+                            # Shifts the op_code right 3 and adds the flag
+                            opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
+                            opcode_len = opcode_len + 4
+                            # Encodes the Immediate value
+                        elif arg.get("Imm"):
+                            # Shifts the op_code to make the immediate bits 15-0
+                            offset = 32 - opcode_len
+                            opcode = (opcode << offset)
+                            opcode_len = opcode_len + offset
+                            try:
+                                opcode = opcode | arg["Imm"]
+                            except:
+                                print("Something wrong with Imm")
                     # Ensures to opcode is 32 bits if it does not have leading zeros
-                    if len(bin(opcode)[2:]) < 32 and not leading_zero:
-                        opcode = opcode << (32 - len(bin(opcode)[2:]))
+                    if len(bin(opcode)[2:]) < 32:
+                        opcode = opcode << (32 - opcode_len)
                     opcodes.append({"opcode":opcode,"label":label})
-                    print(hex(opcode))
+                    print(opcodes[-1])
     return opcodes
 
 def fill_labels(opcodes):
@@ -389,6 +390,7 @@ def fill_labels(opcodes):
 def write_file(opcodes):
     with open("output.mem","a") as file:
         for opcode in opcodes:
+            # print(bin(opcode["opcode"]))
             file.write('{0:08X} \n'.format(opcode["opcode"]))
 
 
