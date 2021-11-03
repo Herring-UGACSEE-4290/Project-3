@@ -332,7 +332,7 @@ labels = {}
 def assemble_from_token(lines):
     global addr
     global labels
-    f = open("Project-3/parser/instructions.json")
+    f = open("instructions.json")
     instrs = json.load(f)
     for i, line in enumerate(lines):
         if line["label"] is not None:
@@ -355,7 +355,7 @@ def get_arg_keys(arg_list):
 def assemble_opcode(dict):
     instrs = None
     opcodes = []
-    with open("Project-3/parser/instructions.json") as f:
+    with open("instructions.json") as f:
        instrs = json.load(f)    
     for (lineNum, line) in enumerate(dict):
         opcode = 0
@@ -394,15 +394,22 @@ def assemble_opcode(dict):
                 # Ensures to opcode is 32 bits if it does not have leading zeros
                 if len(bin(opcode)[2:]) < 32:
                     opcode = opcode << (32 - opcode_len)
-                opcodes.append(opcode)
+                opcodes.append((opcode, line))
     write_file(opcodes)
     return opcodes
 
 def write_file(opcodes):
     with open("output.mem","w") as file:
-        for opcode in opcodes:
+        for opcode, _ in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
+    with open("output.lst","w") as file:
+        for opcode, inst in opcodes:
+            hex_string = '{0:08X}'.format(opcode)
+            hex_address = '{0:08X}'.format(inst["addr"])
+            file.write(hex_address + " | " + hex_string + ": \t" + (inst["label"] +
+                ": \t" if inst["label"] is not None else "\t\t")+
+                inst["mnemonic"] + "\t\n")
 
 
 if __name__ == '__main__':
@@ -410,7 +417,7 @@ if __name__ == '__main__':
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
-        dict = load_asm("Project-3/parser/test.asm")
+        dict = load_asm("test.asm")
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
     print(opcodes)
