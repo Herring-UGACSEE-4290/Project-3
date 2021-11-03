@@ -1,7 +1,6 @@
 # File: app.py
 # Author(s): CSEE 4290 Fall 2021
 
-import click
 import re
 import json
 import sys
@@ -409,7 +408,7 @@ def write_file(opcodes):
 
 
 if __name__ == '__main__':
-    dict = load_asm("test.asm")
+    dict = load_asm(sys.argv[0])
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
     
