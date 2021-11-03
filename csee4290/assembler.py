@@ -1,6 +1,7 @@
 # File: assembler.py
 # Author(s): CSEE 4290 Fall 2021
 
+import click
 import re
 import json
 import sys
@@ -330,10 +331,10 @@ def pseudo_mnemonics(index, lines):
     return False
 
 labels = {}
-def assemble_from_token(lines):
+def assemble_from_token(lines, instruction_file):
     global addr
     global labels
-    f = open("instructions.json")
+    f = open(instruction_file)
     instrs = json.load(f)
     for i, line in enumerate(lines):
         if line["label"] is not None:
@@ -353,10 +354,10 @@ def get_arg_keys(arg_list):
     except TypeError:
         return [] 
         
-def assemble_opcode(dict):
+def assemble_opcode(dict, instruction_file):
     instrs = None
     opcodes = []
-    with open("instructions.json") as f:
+    with open(instruction_file) as f:
        instrs = json.load(f)    
     for (lineNum, line) in enumerate(dict):
         opcode = 0
@@ -396,11 +397,11 @@ def assemble_opcode(dict):
                 if len(bin(opcode)[2:]) < 32:
                     opcode = opcode << (32 - opcode_len)
                 opcodes.append(opcode)
-    write_file(opcodes)
+    #write_file(opcodes, output_file)
     return opcodes
 
-def write_file(opcodes):
-    with open("output.mem","w") as file:
+def write_file(opcodes, file_name):
+    with open(file_name,"w") as file:
         for opcode in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
@@ -414,3 +415,14 @@ if __name__ == '__main__':
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
     print(opcodes)
+
+@click.command()
+@click.argument('input_file', default='test/asm/test.asm')
+@click.option('-o', '--output-file', default='test/out/output.mem')
+@click.option('-I', '--instruction-file', default='test/instructions/instructions.json')
+def assemble(input_file: str, output_file: str, instruction_file: str) -> None:
+    '''Assembles an .asm file into a .mem file with a .json file containing the instructions that define the IS.'''
+    dict = load_asm(input_file)
+    assemble_from_token(dict, instruction_file=instruction_file)
+    opcodes = assemble_opcode(dict, instruction_file=instruction_file)
+    write_file(opcodes, output_file)

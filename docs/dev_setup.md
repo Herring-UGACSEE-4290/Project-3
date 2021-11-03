@@ -57,4 +57,18 @@ $ make build
 $ make
 ```
 
+This will build the standalone executable in a folder named `dist`.
+
 (packaging instructions coming soon)
+
+## Running the Program
+This program can be invoked with the following syntax:
+``` sh
+# Where `subcommand` can be either `assemble` or `disassemble`:
+$ csee4290 [subcommand]
+```
+
+For additional help, usage information can be consulted.
+``` sh
+$ csee4290 [subcommand] --help
+```
