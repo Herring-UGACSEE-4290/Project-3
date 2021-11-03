@@ -21,4 +21,4 @@ test:
 		NOP
 		NOP
 				
-		YIELD
+		HALT
