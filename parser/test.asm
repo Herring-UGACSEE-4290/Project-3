@@ -1,10 +1,9 @@
 start:		
         MOV	R0, #0x0
-		MOVT	R1, #0xe
+		MOV	R1, #0xe
 		MOV	R2, #0xd; "hello this is a comment!!"
 		MOV	R3, #0xc
 		MOV	R4, #0xb
-        MOV32 R8, #0xffffeeee
 		
 		ADD		R5, R0, #0x1
 		ADD		R6, R1, R2
