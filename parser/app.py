@@ -322,10 +322,12 @@ def pseudo_mnemonics(index, lines):
     elif lines[index]["mnemonic"] == "mov32":
         lines.insert(index + subindex, lines[index])
         subindex += 1
-        lines[index]["mnemonic"] == "mov"
+        lines[index]["mnemonic"] = "mov"
         lines[index]["args"][1]["Imm"] &= 0xFFFF
+        lines[index]["addr"] = addr
         lines[index+1]["mnemonic"] = "movt"
         lines[index+1]["args"][1]["Imm"] >>= 16
+        lines[index+1]["addr"] = addr + 4
         addr += 8
     return False
 
@@ -341,6 +343,7 @@ def assemble_from_token(lines):
         if(pseudo_mnemonics(i, lines)):
             pass
         else:
+            lines[i]["addr"] = addr
             addr += 4
 
 def get_arg_keys(arg_list):
@@ -389,7 +392,7 @@ def assemble_opcode(dict):
                         try:
                             opcode = opcode | arg["Imm"]
                         except:
-                            opcode = opcode | labels[arg["Imm"]]
+                            opcode = opcode | labels[arg["Imm"]] - line["addr"]
                             # print("Something wrong with Imm")
                 # Ensures to opcode is 32 bits if it does not have leading zeros
                 if len(bin(opcode)[2:]) < 32:

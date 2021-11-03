@@ -8,7 +8,7 @@ start:
 		ADD		R5, R0, #0x1
 		ADD		R6, R1, R2
 		SUBS	R7, R0, R1
-		B.AL    start
+		B.AL    test
 		
 test:
 		ADD 	R9, R1, R2 
