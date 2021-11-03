@@ -4,6 +4,7 @@
 import re
 import json
 import sys
+import copy
 
 condition_lookup = {
     "eq": 0,
@@ -112,7 +113,7 @@ def parse_label(line):
     
 def parse_instruction(line):
 
-    re_mnem = re.compile('\s+([A-Za-z.]+).*$')
+    re_mnem = re.compile('\s+([A-Za-z.0-9]+).*$')
     re_cond = re.compile('[bB]\.([a-zA-Z]+)')
     
     mnemonic_obj = re_mnem.search(line)
@@ -316,26 +317,22 @@ subindex = 1
 def pseudo_mnemonics(index, lines):
     global addr
     global subindex
-    if lines[index]["mnemonic"] == "org":
+    if lines[index]["mnemonic"] == "ORG":
         addr = lines[index]["args"][0]["Imm"]
         return True
-    elif lines[index]["mnemonic"] == "mov32":
-        lines.insert(index + subindex, lines[index])
-        subindex += 1
-        lines[index]["mnemonic"] = "mov"
+    elif lines[index]["mnemonic"] == "MOV32":
+        lines.insert(index + 1, copy.deepcopy(lines[index]))
+        lines[index]["mnemonic"] = "MOV"
         lines[index]["args"][1]["Imm"] &= 0xFFFF
-        lines[index]["addr"] = addr
-        lines[index+1]["mnemonic"] = "movt"
+        lines[index+1]["mnemonic"] = "MOVT"
         lines[index+1]["args"][1]["Imm"] >>= 16
-        lines[index+1]["addr"] = addr + 4
-        addr += 8
     return False
 
 labels = {}
 def assemble_from_token(lines):
     global addr
     global labels
-    f = open("instructions.json")
+    f = open("Project-3/parser/instructions.json")
     instrs = json.load(f)
     for i, line in enumerate(lines):
         if line["label"] is not None:
@@ -358,7 +355,7 @@ def get_arg_keys(arg_list):
 def assemble_opcode(dict):
     instrs = None
     opcodes = []
-    with open("instructions.json") as f:
+    with open("Project-3/parser/instructions.json") as f:
        instrs = json.load(f)    
     for (lineNum, line) in enumerate(dict):
         opcode = 0
@@ -413,7 +410,7 @@ if __name__ == '__main__':
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
-        dict = load_asm("test.asm")
+        dict = load_asm("Project-3/parser/test.asm")
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
     print(opcodes)
