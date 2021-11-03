@@ -314,6 +314,8 @@ def load_asm(filename):
 addr = 0
 subindex = 1
 def pseudo_mnemonics(index, lines):
+    global addr
+    global subindex
     if lines[index]["mnemonic"] == "org":
         addr = 0
         return True
@@ -356,59 +358,59 @@ def assemble_opcode(dict):
     with open("instructions.json") as f:
        instrs = json.load(f)    
     for (lineNum, line) in enumerate(dict):
-        if line["label"]:
-            continue
         opcode = 0
         opcode_len = 0
         label = None
-        if(pseudo_mnemonics(line,opcodes)):
-            continue
-        else:
-            for inst in instrs:
-                # Matches the op_code mnemonic and the number of args
-                if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"]):
-                    # ors the op_code as the first 7 bits
-                    opcode = opcode | int(instrs[inst]["instr"], 2)
-                    opcode_len = opcode_len + 7
-                    # Gets the arguments
-                    for (index, arg) in enumerate(line["args"]):
-                        if arg.get("Reg"):
-                            # Shifts the current op_code right 3 and adds the register
-                            opcode = (opcode << 3)
-                            opcode_len = opcode_len + 3
-                            opcode = opcode | int(arg["Reg"])
-                            # Encodes the flags
-                        elif arg.get("Flg"):
-                            # Shifts the op_code right 4 and adds the flag
-                            print(condition_lookup[arg["Flg"].lower()])
-                            opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
-                            opcode_len = opcode_len + 4
-                            # Encodes the Immediate value
-                        elif arg.get("Imm"):
-                            # Shifts the op_code to make the immediate bits 15-0
-                            offset = 32 - opcode_len
-                            opcode = (opcode << offset)
-                            opcode_len = opcode_len + offset
-                            try:
-                                opcode = opcode | arg["Imm"]
-                            except:
-                                opcode = opcode | labels[arg["Imm"]]
-                                # print("Something wrong with Imm")
-                    # Ensures to opcode is 32 bits if it does not have leading zeros
-                    if len(bin(opcode)[2:]) < 32:
-                        opcode = opcode << (32 - opcode_len)
-                    opcodes.append(opcode)
+        for inst in instrs:
+            # Matches the op_code mnemonic and the number of args
+            if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"]):
+                # ors the op_code as the first 7 bits
+                opcode = opcode | int(instrs[inst]["instr"], 2)
+                opcode_len = opcode_len + 7
+                # Gets the arguments
+                for (index, arg) in enumerate(line["args"]):
+                    if arg.get("Reg"):
+                        # Shifts the current op_code right 3 and adds the register
+                        opcode = (opcode << 3)
+                        opcode_len = opcode_len + 3
+                        opcode = opcode | int(arg["Reg"])
+                        # Encodes the flags
+                    elif arg.get("Flg"):
+                        # Shifts the op_code right 4 and adds the flag
+                        print(condition_lookup[arg["Flg"].lower()])
+                        opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
+                        opcode_len = opcode_len + 4
+                        # Encodes the Immediate value
+                    elif arg.get("Imm"):
+                        # Shifts the op_code to make the immediate bits 15-0
+                        offset = 32 - opcode_len
+                        opcode = (opcode << offset)
+                        opcode_len = opcode_len + offset
+                        try:
+                            opcode = opcode | arg["Imm"]
+                        except:
+                            opcode = opcode | labels[arg["Imm"]]
+                            # print("Something wrong with Imm")
+                # Ensures to opcode is 32 bits if it does not have leading zeros
+                if len(bin(opcode)[2:]) < 32:
+                    opcode = opcode << (32 - opcode_len)
+                opcodes.append(opcode)
     write_file(opcodes)
+    return opcodes
 
 def write_file(opcodes):
-    with open("output.mem","a") as file:
+    with open("output.mem","w") as file:
         for opcode in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
 
 
 if __name__ == '__main__':
-    dict = load_asm(sys.argv[0])
+    if(len(sys.argv)>1):
+        dict = load_asm(sys.argv[1])
+    else:
+        dict = load_asm("test.asm")
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
+    print(opcodes)
     
