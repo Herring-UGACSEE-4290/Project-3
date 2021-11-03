@@ -312,15 +312,22 @@ def load_asm(filename):
 
     return line_data
 
-def pseudo_mnemonics(line, opcodes):
-    if line["mnemonic"] == "org":
+addr = 0
+subindex = 1
+def pseudo_mnemonics(index, lines):
+    if lines[index]["mnemonic"] == "org":
         addr = 0
         return True
-    elif line["mnemonic"] == "mov32":
-        return True
+    elif lines[index]["mnemonic"] == "mov32":
+        lines.insert(index + subindex, lines[index])
+        subindex += 1
+        lines[index]["mnemonic"] == "mov"
+        lines[index]["args"][1]["Imm"] %= 0xFFFF
+        lines[index+1]["mnemonic"] = "movt"
+        lines[index+1]["args"][1]["Imm"] >>= 16
+        addr += 8
     return False
 
-addr = 0
 labels = {}
 def assemble_from_token(lines):
     global addr
@@ -330,7 +337,7 @@ def assemble_from_token(lines):
     for i, line in enumerate(lines):
         if line["label"] is not None:
             labels[line["label"]] = addr
-        if(pseudo_mnemonics(line)):
+        if(pseudo_mnemonics(i, lines)):
             pass
         else:
             addr += 4
