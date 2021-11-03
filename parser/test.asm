@@ -1,4 +1,4 @@
-.start	
+start:	
 		MOVZ	X0, #0x0
 		MOVZ	X1, #0xe
 		MOVZ	X2, #0xd; "hello this is a comment!!"

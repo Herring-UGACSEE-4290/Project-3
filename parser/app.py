@@ -227,6 +227,21 @@ def append_instruction_number(line_data):
 
     return line_data
 
+def insert_labels_to_instructions(line_data):
+    '''
+    for dictionaries with labels, insert the label into the label field of the following instruction and remove that entry from the line_data list
+
+    this allows the instruction number to be inferred from the location in the instruction list
+    '''
+    for i,line_dict in enumerate(line_data):
+        label = line_dict['label']
+        if label:
+            line_data[i+1]['label'] = label
+            del line_data[i]
+        else:
+            continue
+
+    return line_data
 
 def load_asm(filename):
     line_data = []
@@ -292,6 +307,8 @@ def load_asm(filename):
     for line in line_data:
         if not line['args']:
             line['args'] = []
+    
+    line_data = insert_labels_to_instructions(line_data)
 
     return line_data
 
