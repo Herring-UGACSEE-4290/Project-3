@@ -317,7 +317,7 @@ def pseudo_mnemonics(index, lines):
     global addr
     global subindex
     if lines[index]["mnemonic"] == "org":
-        addr = 0
+        addr = lines[index]["args"][0]["Imm"]
         return True
     elif lines[index]["mnemonic"] == "mov32":
         lines.insert(index + subindex, lines[index])
@@ -409,6 +409,7 @@ def write_file(opcodes):
 
 
 if __name__ == '__main__':
+    dict = {}
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
