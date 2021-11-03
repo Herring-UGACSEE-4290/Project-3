@@ -160,8 +160,8 @@ def parse_arguments(line, cond):
     args = line.split(',')
 
     if cond:
-        temp = {'condition': None}
-        temp['condition'] = cond
+        temp = {'Flg': None}
+        temp['Flg'] = cond
 
         args.insert(0,temp)
 
@@ -295,7 +295,7 @@ def load_asm(filename):
 
     return line_data
 
-def pseudo_mnemonics(line):
+def pseudo_mnemonics(line, opcodes):
     if line["mnemonic"] == "org":
         addr = 0
         return True
@@ -335,11 +335,10 @@ def assemble_opcode(dict):
     for (lineNum, line) in enumerate(dict):
         if line["label"]:
             continue
-        print(line)
         opcode = 0
         opcode_len = 0
         label = None
-        if(pseudo_mnemonics(line)):
+        if(pseudo_mnemonics(line,opcodes)):
             continue
         else:
             for inst in instrs:
@@ -354,13 +353,11 @@ def assemble_opcode(dict):
                             # Shifts the current op_code right 3 and adds the register
                             opcode = (opcode << 3)
                             opcode_len = opcode_len + 3
-                            try:
-                                opcode = opcode | int(arg["Reg"][1:])
-                            except:
-                                label = arg["Reg"]
+                            opcode = opcode | int(arg["Reg"])
                             # Encodes the flags
                         elif arg.get("Flg"):
-                            # Shifts the op_code right 3 and adds the flag
+                            # Shifts the op_code right 4 and adds the flag
+                            print(condition_lookup[arg["Flg"].lower()])
                             opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
                             opcode_len = opcode_len + 4
                             # Encodes the Immediate value
@@ -372,33 +369,23 @@ def assemble_opcode(dict):
                             try:
                                 opcode = opcode | arg["Imm"]
                             except:
-                                print("Something wrong with Imm")
+                                opcode = opcode | labels[arg["Imm"]]
+                                # print("Something wrong with Imm")
                     # Ensures to opcode is 32 bits if it does not have leading zeros
                     if len(bin(opcode)[2:]) < 32:
                         opcode = opcode << (32 - opcode_len)
-                    opcodes.append({"opcode":opcode,"label":label})
-                    print(opcodes[-1])
-    return opcodes
-
-def fill_labels(opcodes):
-    for opcode in opcodes:
-        if opcode["label"]:
-            opcode["opcode"] = opcode["opcode"] | labels[opcode["label"]]
-    return opcodes
+                    opcodes.append(opcode)
+    write_file(opcodes)
 
 def write_file(opcodes):
     with open("output.mem","a") as file:
         for opcode in opcodes:
-            # print(bin(opcode["opcode"]))
-            file.write('{0:08X} \n'.format(opcode["opcode"]))
+            hex_string = '{0:08X} \n'.format(opcode)
+            file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
 
 
 if __name__ == '__main__':
     dict = load_asm("test.asm")
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
-    print("Before, ",len(opcodes))
-    opcodes = fill_labels(opcodes)
-    print("After, ",len(opcodes))
-    write_file(opcodes)
     
