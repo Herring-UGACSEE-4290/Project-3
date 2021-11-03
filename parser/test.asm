@@ -1,24 +1,24 @@
-.start	
-		MOVZ	X0, #0x0
-		MOVZ	X1, #0xe
-		MOVZ	X2, #0xd; "hello this is a comment!!"
-		MOVZ	X3, #0xc
-		MOVZ	X4, #0xb
+start:	
+		MOV	R0, #0x0
+		MOV	R1, #0xe
+		MOV	R2, #0xd; "hello this is a comment!!"
+		MOV	R3, #0xc
+		MOV	R4, #0xb
 		
-		ADD		X5, X0, #0x1
-		ADD		X6, X1, X2
-		SUBS	X7, X0, X1
+		ADD		R5, R0, #0x1
+		ADD		R6, R1, R2
+		SUBS	R7, R0, R1
 		B.AL    start
 		
 test:
-		ADD 	X9, X1, X2 
-		AND 	X10, X9, X3; .: this is a comment!
-		ORR 	X11, X5, X9
-		SUB 	X12, X9, X7
+		ADD 	R7, R1, R2 
+		AND 	R6, R7, R3; .: this is a comment!
+		ORR 	R5, R5, R6
+		SUB 	R4, R6, R7
 
 		NOP
 		NOP
 		NOP
 		NOP
 				
-		YIELD
+		HALT
