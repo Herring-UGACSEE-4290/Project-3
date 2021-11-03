@@ -160,10 +160,10 @@ def parse_arguments(line, cond):
     args = line.split(',')
 
     if cond:
-        temp = {'Flg': None}
-        temp['Flg'] = cond
+        temp = {'condition': None}
+        temp['condition'] = cond
 
-        args.append(temp)
+        args.insert(0,temp)
 
     if len(args) == 0:
         return []
@@ -204,8 +204,8 @@ def parse_arguments(line, cond):
 
         if type(arg) == str: #assume the last possible argument would be branch target
             # print(arg)
-            temp = {'Reg': None}
-            temp['Reg'] = arg
+            temp = {'Imm': None}
+            temp['Imm'] = arg
             args[i] = temp
             continue
 
