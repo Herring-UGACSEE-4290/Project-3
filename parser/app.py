@@ -4,6 +4,7 @@
 import re
 import json
 import sys
+import copy
 
 condition_lookup = {
     "eq": 0,
@@ -112,7 +113,7 @@ def parse_label(line):
     
 def parse_instruction(line):
 
-    re_mnem = re.compile('\s+([A-Za-z.]+).*$')
+    re_mnem = re.compile('\s+([A-Za-z.0-9]+).*$')
     re_cond = re.compile('[bB]\.([a-zA-Z]+)')
     
     mnemonic_obj = re_mnem.search(line)
@@ -312,23 +313,24 @@ def load_asm(filename):
     return line_data
 
 addr = 0
-subindex = 1
+subindex = 0
 def pseudo_mnemonics(index, lines):
     global addr
     global subindex
-    if lines[index]["mnemonic"] == "org":
+    if lines[index]["mnemonic"] == "ORG":
         addr = 0
         return True
-    elif lines[index]["mnemonic"] == "mov32":
-        lines.insert(index + subindex, lines[index])
-        subindex += 1
-        lines[index]["mnemonic"] = "mov"
+    elif lines[index]["mnemonic"] == "MOV32":
+        lines.insert(index + 1, copy.deepcopy(lines[index]))
+        lines[index]["mnemonic"] = "MOV"
         lines[index]["args"][1]["Imm"] &= 0xFFFF
         lines[index]["addr"] = addr
-        lines[index+1]["mnemonic"] = "movt"
+        lines[index+1]["mnemonic"] = "MOVT"
         lines[index+1]["args"][1]["Imm"] >>= 16
         lines[index+1]["addr"] = addr + 4
-        addr += 8
+        lines[index+1]["label"] = None
+        #subindex += 1
+        addr += 4
     return False
 
 labels = {}
@@ -340,10 +342,10 @@ def assemble_from_token(lines):
     for i, line in enumerate(lines):
         if line["label"] is not None:
             labels[line["label"]] = addr
-        if(pseudo_mnemonics(i, lines)):
+        if(pseudo_mnemonics(i+subindex, lines)):
             pass
         else:
-            lines[i]["addr"] = addr
+            lines[i+subindex]["addr"] = addr
             addr += 4
 
 def get_arg_keys(arg_list):
@@ -409,6 +411,7 @@ def write_file(opcodes):
 
 
 if __name__ == '__main__':
+    dict = {}
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
