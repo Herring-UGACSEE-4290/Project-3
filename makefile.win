@@ -1,0 +1,56 @@
+PY  = python
+PIP = pip
+PKG_NAME = csee4290
+ENV_DIR     = .env
+ENV_BIN_DIR = $(ENV_DIR)\Scripts
+PYLIB_EXE   = $(ENV_BIN_DIR)\$(PKG_NAME)
+ENV_PY      = $(ENV_BIN_DIR)\python
+ENV_PIP     = $(ENV_BIN_DIR)\pip
+INSTALLER      = pyinstaller
+INSTALLER_ARGS = --onefile -n $(PKG_NAME) $(PKG_NAME)\__init__.py
+
+# Creates an executable from this application
+.PHONY: build
+build:
+	$(INSTALLER) $(INSTALLER_ARGS)
+
+# Packages this application in such a way that it could be uploaded to PyPI
+$(PYLIB_EXE):
+	$(ENV_PY) -m build
+
+# Installs a "flexible" and mutable copy of this package into the current Python environment
+# (for development)
+.PHONY: dev_pip_install
+dev_install: $(PYLIB_EXE)
+	$(ENV_PIP) install --editable .
+
+# Fully installs this package into the current Python environment
+.PHONY: install
+install: $(PYLIB_EXE)
+	$(ENV_PIP) install .
+
+# Removes unnecessary temporary files from the working tree
+.PHONY: clean
+clean:
+	powershell "if (test-path build\) { Remove-Item -Recurse -Force build\ } "
+	powershell "if (test-path dist\) { Remove-Item -Recurse -Force dist\ } "
+	powershell "if (test-path *.egg-info\) { Remove-Item -Recurse -Force *.egg-info\ } "
+	powershell "if (test-path $(PKG_NAME)\__pycache__\) { Remove-Item -Recurse -Force $(PKG_NAME)\__pycache__\ } "
+	powershell "if (test-path *.spec) { Remove-Item -Force *.spec } "
+	powershell "if (test-path $(PYLIB_EXE)) { Remove-Item -Force $(PYLIB_EXE) } "
+
+# Sets up the virtual environment for development
+.PHONY: setup
+setup: $(ENV_DIR) # prevents this from being run if the '.env\' directory exists
+
+$(ENV_DIR):
+	$(PY) -m venv $(ENV_DIR)
+	@powershell "Write-Host "Virtual environment is set up. Please run `'.\$(ENV_BIN_DIR)\Activate.ps1`' to activate the virtual environment, then run `'make finish_setup`' to install the rest of this project`'s dependencies into that environment " -F green "
+
+# Installs project dependencies into the virtual environment
+.PHONY: finsh_setup
+finish_setup:
+	$(ENV_PIP) install --upgrade pip
+	$(ENV_PIP) install wheel
+	$(ENV_PIP) install -r requirements.txt
+
