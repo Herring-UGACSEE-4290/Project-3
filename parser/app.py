@@ -321,7 +321,7 @@ def pseudo_mnemonics(index, lines):
         lines.insert(index + subindex, lines[index])
         subindex += 1
         lines[index]["mnemonic"] == "mov"
-        lines[index]["args"][1]["Imm"] %= 0xFFFF
+        lines[index]["args"][1]["Imm"] &= 0xFFFF
         lines[index+1]["mnemonic"] = "movt"
         lines[index+1]["args"][1]["Imm"] >>= 16
         addr += 8
