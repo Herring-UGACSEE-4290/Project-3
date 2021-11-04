@@ -1,4 +1,3 @@
-
 `timescale  10ms/1ps
 
 module testbench();
@@ -57,26 +56,26 @@ module testbench();
     always @(posedge mem_clk or negedge nreset) begin
         if (~nreset) instruction_memory_v <= 32'hC8000000; // Set instruction to NOP if reset
 		else if(instruction_memory_en) begin
-            instruction_memory_v[ 7: 0] <= memory[instruction_memory_a[15:0]];
-			instruction_memory_v[15: 8] <= memory[instruction_memory_a[15:0]+1];
-			instruction_memory_v[23:16] <= memory[instruction_memory_a[15:0]+2];
-			instruction_memory_v[31:24] <= memory[instruction_memory_a[15:0]+3];
+            instruction_memory_v[ 7: 0] <= inst_memory[instruction_memory_a[15:0]];
+			instruction_memory_v[15: 8] <= inst_memory[instruction_memory_a[15:0]+1];
+			instruction_memory_v[23:16] <= inst_memory[instruction_memory_a[15:0]+2];
+			instruction_memory_v[31:24] <= inst_memory[instruction_memory_a[15:0]+3];
         end
     end
 
     // Define Data Memory Behavior
     always @ (posedge mem_clk) begin
 		if(data_memory_read) begin
-			data_memory_in_v[ 7: 0] <= memory[data_memory_a[15:0]];
-			data_memory_in_v[15: 8] <= memory[data_memory_a[15:0]+1];
-			data_memory_in_v[23:16] <= memory[data_memory_a[15:0]+2];
-			data_memory_in_v[31:24] <= memory[data_memory_a[15:0]+3];
+			data_memory_in_v[ 7: 0] <= data_memory[data_memory_a[15:0]];
+			data_memory_in_v[15: 8] <= data_memory[data_memory_a[15:0]+1];
+			data_memory_in_v[23:16] <= data_memory[data_memory_a[15:0]+2];
+			data_memory_in_v[31:24] <= data_memory[data_memory_a[15:0]+3];
 		end
 		if(data_memory_write) begin
-			memory[data_memory_a[15:0]+0] <= data_memory_out_v[ 7: 0];
-			memory[data_memory_a[15:0]+1] <= data_memory_out_v[15: 8];
-			memory[data_memory_a[15:0]+2] <= data_memory_out_v[23:16];
-			memory[data_memory_a[15:0]+3] <= data_memory_out_v[31:24];
+			data_memory[data_memory_a[15:0]+0] <= data_memory_out_v[ 7: 0];
+			data_memory[data_memory_a[15:0]+1] <= data_memory_out_v[15: 8];
+			data_memory[data_memory_a[15:0]+2] <= data_memory_out_v[23:16];
+			data_memory[data_memory_a[15:0]+3] <= data_memory_out_v[31:24];
 		end
     end
 
@@ -96,19 +95,20 @@ module testbench();
         // Display the file name
 		$display("%sTest case: %0s", "[LOG]", PROGRAM);
 		
-        // Read contents of file into memory
-        $readmemh(PROGRAM, memory);
+        // Read contents of file into instruction and data memory
+        $readmemh(PROGRAM, inst_memory);
+        $readmemh(PROGRAM, data_memory);
 
 		-> START_LOG;
 		repeat (6) @(posedge main_clk);
 		nreset <= 1;
 
 		forever @ (posedge core_clk)
-			if(error_indicator == 0) begin // If HALT
+			if(error_indicator == 1'b0) begin // If HALT
 				$display("%sApollo has landed", "[LOG]");
 				$finish;
 			end
-			else if(error_indicator == 1) begin // If ERROR
+			else if(error_indicator == 1'b1) begin // If ERROR
 				$display("%sHouston, we got a problem", "[ERROR]");
 				$finish;
 			end

@@ -44,6 +44,8 @@ module CPU(
 		else nreset_sync <= 1; 
 	end
 	
+    // unified halt
+    wire npe_stop;
 	assign npe_stop = clk_en & ~|error_indicator & nreset_sync;
 
 	// enable instruction read 
