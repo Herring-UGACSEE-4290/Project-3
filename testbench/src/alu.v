@@ -19,7 +19,6 @@ module ALU(
     input [15:0] immediate,
     input aluMode,
     input [2:0] aluFunc,
-    
     output reg [31:0] results,
     output reg [3:0] flags
 );
