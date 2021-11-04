@@ -39,7 +39,7 @@ module CPU(
 
     //Register File signals
     wire writeEnable;
-    wire [31:0] write_val, results, op1, op2;
+    wire [31:0] results, op1, op2;
 
     reg [29:0] PC;
     reg [3:0] PSTATE;
@@ -54,6 +54,7 @@ module CPU(
 
 	// enable instruction read 
 	assign instruction_memory_en = nreset_sync;
+    assign instruction_memory_a = {PC, 2{0}};
     assign error_indicator = halt;
 
 /*****************************************************************************/
@@ -126,6 +127,7 @@ Instruction Fetch
 
         .ldst(ldst), // Load Store
         .SnL(SnL), // Store not Load
+        .writeEnable(writeEnable),
 
         .halt(halt),
         .en(en),
@@ -138,7 +140,7 @@ Instruction Fetch
         .clk(clk),
         .clk_en(clk_en),
         .write_en(en & writeEnable),
-        .write_val(results),
+        .write_val(~ldst ? results : data_memory_in_v),
         .writeReg(resultReg),
         .op1Reg(op1Reg),
         .op2Reg(op2Reg),
@@ -164,6 +166,22 @@ Instruction Fetch
         if(toPC & doJump) PC = results[31:2];
         if(setFlags) PSTATE = aluFlag;
         
+    end
+
+//Write Back
+    assign data_memory_read = ~data_memory_write
+    always @(*) begin
+        if(ldst) begin;
+            data_memory_a = results;
+            if(SnL) begin
+                data_memory_write = 1;
+                data_memory_out_v = op2;
+            end
+            else begin
+                data_memory_write = 0;
+            end
+        end
+        else data_memory_write = 0;
     end
 
 endmodule

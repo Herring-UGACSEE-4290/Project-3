@@ -14,6 +14,7 @@ module InstructionDecoder (
 
     output ldst, // Load Store
     output SnL, // Store not Load
+    output writeEnable,
 
     output halt,
     output en,
@@ -34,6 +35,7 @@ module InstructionDecoder (
 
     assign ldst = I[31:30] == 2;
     assign SnL = I[25];
+    assign writeEnable = ~I[31] | (I[31] & ~I[30] & I[25]);
 
     assign halt = &I[31:30] & I[28];
     assign en = ~(&I[31:30] & I[28:27]==1);
