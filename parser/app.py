@@ -14,7 +14,7 @@ condition_lookup = {
     "cc": 3,
     "lo": 3,
     "mi": 4,
-    "pl": 5,
+    "pl": 2,
     "vs": 6,
     "vc": 7,
     "hi": 8,
@@ -26,26 +26,6 @@ condition_lookup = {
     "al": 14
 }
 
-def pop_header(lines, line_data):
-    '''
-    remove header from lines data for ease of parsing. returns header as list of strings if desired
-    removes corresponding dicts from line_data
-    '''
-    start_found = False
-    for i,line in enumerate(lines):
-        if line[:6] == "start:":
-            start_found = True
-            header_index = i
-            header = lines[:header_index]
-
-    if not start_found:
-        print("start: does not begin assembly")
-        quit()
-
-    lines = lines[header_index:]
-    line_data = line_data[header_index:]
-
-    return lines, line_data, header
 
 def parse_comments(line):
     '''
@@ -246,7 +226,6 @@ def insert_labels_to_instructions(line_data):
 def load_asm(filename):
     line_data = []
     keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "instruction number", "errors"]
-    header = None
 
     with open(filename) as file:
         lines = file.read().splitlines()
@@ -257,8 +236,6 @@ def load_asm(filename):
         d["line number"] = i + 1
         line_data.append(d)
 
-    #first do cleanup on all lines
-    lines, line_data, header = pop_header(lines, line_data) #header does not do anything. kept for potential future use
 
     lines, line_data = del_blanklines(lines, line_data)
 
