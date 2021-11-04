@@ -52,14 +52,18 @@ def del_blanklines(lines, line_data):
     remove line if the only data is whitespace
     remove corresponding dicts from line_data
     '''
+    cleaned_lines = []
+    cleaned_data = []
+
     re_blank = re.compile('^\s*$')
     for i, line in enumerate(lines):
+        
         blank_obj = re_blank.match(line)
-        if blank_obj:
-            del lines[i]
-            del line_data[i]
+        if not blank_obj:
+            cleaned_lines.append(line)
+            cleaned_data.append(line_data[i])
 
-    return lines, line_data
+    return cleaned_lines, cleaned_data
 
 def get_line_type(line, type_label, type_instruction, error):
     '''
@@ -155,6 +159,7 @@ def parse_arguments(line, cond):
     for i,arg in enumerate(args):
 
 
+
         if '#0x' in arg:
             temp = {'Imm': None}
             temp['Imm']= int(arg[3:],16)
@@ -191,22 +196,6 @@ def parse_arguments(line, cond):
 
     return args
 
-def append_instruction_number(line_data):
-    '''
-    input line_data, return line_data with instruction number for instructions (not for labels)
-    '''
-
-    count = 0
-    for i, line_dict in enumerate(line_data):
-        if not line_dict["label"]:
-            line_data[i]["instruction number"] = count
-            count += 1
-        else:
-            continue
-
-
-    return line_data
-
 def insert_labels_to_instructions(line_data):
     '''
     for dictionaries with labels, insert the label into the label field of the following instruction and remove that entry from the line_data list
@@ -223,9 +212,53 @@ def insert_labels_to_instructions(line_data):
 
     return line_data
 
+def parse_line(i, line, line_dict):
+
+        type_label = False
+        type_instruction = False
+        error = None
+
+        line, comment = parse_comments(line)
+        if comment:
+            line_dict["comment"] = comment
+
+        
+        type_label, type_instruction, error = get_line_type(line, type_label, type_instruction, error)
+        if error:
+            line_dict["error"] = error
+            return line_dict
+
+        if type_label:
+
+            label = parse_label(line)
+            if error:
+                line_dict["error"] = error
+                return line_dict
+
+            line_dict["label"] = label
+
+            return line_dict
+
+        elif type_instruction:
+
+            mnemonic, args, error = parse_instruction(line)
+            if error:
+                line_dict["error"] = error
+                return line_dict
+
+            line_dict["mnemonic"] = mnemonic
+            line_dict["args"] = args
+
+            return line_dict
+        else:
+            print("typing error") #handle this the correct way
+            return line_dict
+    
+
+
 def load_asm(filename):
     line_data = []
-    keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "instruction number", "errors"]
+    keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "errors"]
 
     with open(filename) as file:
         lines = file.read().splitlines()
@@ -239,46 +272,14 @@ def load_asm(filename):
 
     lines, line_data = del_blanklines(lines, line_data)
 
+
     #now parse line by line
     for i, line in enumerate(lines):
 
-        type_label = False
-        type_instruction = False
-        error = None
-
-        line, comment = parse_comments(line)
-        if comment:
-            line_data[i]["comment"] = comment
-
-        
-        type_label, type_instruction, error = get_line_type(line, type_label, type_instruction, error)
-        if error:
-            line_data[i]["error"] = error
-            continue
-
-        if type_label:
-
-            label = parse_label(line)
-            if error:
-                line_data[i]["error"] = error
-                continue
-
-            line_data[i]["label"] = label
-
-        elif type_instruction:
-
-            mnemonic, args, error = parse_instruction(line)
-            if error:
-                line_data[i]["error"] = error
-                continue
-
-            line_data[i]["mnemonic"] = mnemonic
-            line_data[i]["args"] = args
-        else:
-            print("typing error") #handle this the correct way
-            continue
-
-    line_data = append_instruction_number(line_data)
+        try:
+            line_data[i] = parse_line(i, line, line_data[i])
+        except:
+            line_data[i]['errors'] = "syntax error"
 
     #turn None types into empty lists for 'args'
     for line in line_data:
