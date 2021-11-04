@@ -5,12 +5,11 @@ module CPU(
 	input  [31:0] instruction_memory_v, // Instruction memory read value
 	input  [31:0] data_memory_in_v,     // Data memory read value
 
-	output  [3:0] error_indicator,
+	output  [1:0] error_indicator,
 	output [31:0] instruction_memory_a, // Instruction memory address
 	output        instruction_memory_en,// Instruction memory read enable
 	output [31:0] data_memory_a,        // Data memory address
 	output [31:0] data_memory_out_v,    // Data memory write value
-	output  [1:0] data_memory_s,        // Data memory read/write size
 	output        data_memory_read,     // Data memory read control
 	output        data_memory_write     // Data memory write control
 );
