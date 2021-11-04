@@ -52,14 +52,7 @@
 
 		NOP;
 
-		HALT;
-
-
-
-
-
-
-		
+		HALT;		
 test:
 		LOAD	R11, R10
 
