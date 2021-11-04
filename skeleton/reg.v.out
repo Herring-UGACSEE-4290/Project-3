@@ -1,0 +1,45 @@
+#! /usr/local/bin/vvp
+:ivl_version "0.9.7 " "(v0_9_7)";
+:vpi_time_precision + 0;
+:vpi_module "system";
+:vpi_module "v2005_math";
+:vpi_module "va_math";
+S_0x600001f948c0 .scope module, "RegisterFile" "RegisterFile" 2 1;
+ .timescale 0 0;
+v0x600000890000_0 .net *"_s1", 0 0, L_0x600001490510; 1 drivers
+v0x600000890080_0 .net *"_s11", 30 0, C4<0000000000000000000000000000000>; 1 drivers
+v0x600000890100_0 .net *"_s5", 30 0, C4<0000000000000000000000000000000>; 1 drivers
+v0x600000890180_0 .net *"_s7", 0 0, L_0x600001490630; 1 drivers
+v0x600000890200_0 .net "clk", 0 0, C4<z>; 0 drivers
+v0x600000890280_0 .net "clk_en", 0 0, C4<z>; 0 drivers
+v0x600000890300_0 .net "op1Reg", 2 0, C4<zzz>; 0 drivers
+v0x600000890380_0 .net "op2Reg", 2 0, C4<zzz>; 0 drivers
+v0x600000890400_0 .net "out1", 31 0, L_0x6000014905a0; 1 drivers
+v0x600000890480_0 .net "out2", 31 0, L_0x6000014906c0; 1 drivers
+v0x600000890500_0 .var "regs", 255 0;
+v0x600000890580_0 .net "writeReg", 2 0, C4<zzz>; 0 drivers
+v0x600000890600_0 .net "write_en", 0 0, C4<z>; 0 drivers
+v0x600000890680_0 .net "write_val", 31 0, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; 0 drivers
+E_0x600002890420 .event posedge, v0x600000890200_0;
+L_0x600001490510 .part v0x600000890500_0, 0, 1;
+L_0x6000014905a0 .concat [ 1 31 0 0], L_0x600001490510, C4<0000000000000000000000000000000>;
+L_0x600001490630 .part v0x600000890500_0, 0, 1;
+L_0x6000014906c0 .concat [ 1 31 0 0], L_0x600001490630, C4<0000000000000000000000000000000>;
+    .scope S_0x600001f948c0;
+T_0 ;
+    %wait E_0x600002890420;
+    %load/v 8, v0x600000890280_0, 1;
+    %load/v 9, v0x600000890600_0, 1;
+    %and 8, 9, 1;
+    %jmp/0xz  T_0.0, 8;
+    %load/v 8, v0x600000890680_0, 32;
+    %ix/load 0, 0, 0;
+    %set/x0 v0x600000890500_0, 8, 1;
+T_0.0 ;
+    %jmp T_0;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "reg.v";

@@ -14,7 +14,7 @@ condition_lookup = {
     "cc": 3,
     "lo": 3,
     "mi": 4,
-    "pl": 2,
+    "pl": 5,
     "vs": 6,
     "vc": 7,
     "hi": 8,
