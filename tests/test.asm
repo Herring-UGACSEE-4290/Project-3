@@ -4,11 +4,12 @@ start:
 		MOV	R2, #0xd; "hello this is a comment!!"
 		MOV	R3, #0xc
 		MOV	R4, #0xb
+        MOV32 R1, #0xeeffccdd
 		
 		ADD		R5, R0, #0x1
 		ADD		R6, R1, R2
 		SUBS	R7, R0, R1
-		B.AL    start
+		B.AL    test
 		
 test:
 		ADD 	R9, R1, R2 
@@ -21,4 +22,4 @@ test:
 		NOP
 		NOP
 				
-		YIELD
+		HALT
