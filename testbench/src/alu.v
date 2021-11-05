@@ -24,7 +24,7 @@ module ALU(
 );
 
     wire [31:0] op2;
-    assign op2 = immediateMode ? immediate : op2Reg;
+    assign op2 = immediateMode ? {{16{immediate[15]}}, immediate} : op2Reg;
 
     always @(*) begin
         if(aluMode) begin

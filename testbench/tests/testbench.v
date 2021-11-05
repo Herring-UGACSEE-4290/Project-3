@@ -104,11 +104,11 @@ module testbench();
 		nreset <= 1;
 
 		forever @ (posedge core_clk)
-			if(error_indicator == 1'b0) begin // If HALT
+			if(error_indicator == 2'b01) begin // If HALT
 				$display("%sApollo has landed", "[LOG]");
 				$finish;
 			end
-			else if(error_indicator == 1'b1) begin // If ERROR
+			else if(error_indicator == 2'b10) begin // If ERROR
 				$display("%sHouston, we got a problem", "[ERROR]");
 				$finish;
 			end

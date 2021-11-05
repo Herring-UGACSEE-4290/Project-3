@@ -379,7 +379,7 @@ def write_file(opcodes):
     with open("output.mem","w") as file:
         for opcode, _ in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
-            file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
+            file.write(" ". join(hex_string[i:i+2] for i in range(len(hex_string)-2, -1, -2)))
     with open("output.lst","w") as file:
         for opcode, inst in opcodes:
             hex_string = '{0:08X}'.format(opcode)

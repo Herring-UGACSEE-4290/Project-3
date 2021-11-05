@@ -13,7 +13,7 @@ ifeq (simulate,$(firstword $(MAKECMDGOALS)))
 endif
 
 testbench.vvp: 
-	$(CC) $(CFLAGS) -t vvp -y src/ -s testbench src/* tests/* -o testbench.vvp
+	$(CC) $(CFLAGS) -t vvp -y src/ -o testbench.vvp -s testbench src/* tests/*.v 
 
 build: testbench.vvp
 

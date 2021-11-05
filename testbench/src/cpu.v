@@ -1,6 +1,6 @@
-`include "id.v"
-`include "alu.v"
-`include "reg.v"
+//`include "id.v"
+//`include "alu.v"
+//`include "reg.v"
 
 module CPU(
 	input         clk,    // Core clock
@@ -12,10 +12,10 @@ module CPU(
 	output  [1:0] error_indicator,
 	output [31:0] instruction_memory_a, // Instruction memory address
 	output        instruction_memory_en,// Instruction memory read enable
-	output [31:0] data_memory_a,        // Data memory address
-	output [31:0] data_memory_out_v,    // Data memory write value
+	output reg [31:0] data_memory_a,        // Data memory address
+	output reg [31:0] data_memory_out_v,    // Data memory write value
 	output        data_memory_read,     // Data memory read control
-	output        data_memory_write     // Data memory write control
+	output reg       data_memory_write     // Data memory write control
 );
 
     //Decode signals
@@ -55,7 +55,7 @@ module CPU(
 
 	// enable instruction read 
 	assign instruction_memory_en = nreset_sync;
-    assign instruction_memory_a = {PC, 2{0}};
+    assign instruction_memory_a = {PC, 2'b00};
     assign error_indicator = halt;
 
 /*****************************************************************************/
@@ -69,34 +69,15 @@ Instruction Fetch
     assign V = PSTATE[0];
 
     reg doJump;
+    wire [29:0] nextPC;
 	always @ (posedge clk or negedge nreset_sync) begin
-        doJump = 0;
+        
         
         if(~nreset_sync) PC <= 29'h0;
         else begin
             if(npe_stop) 
-                if(branch) begin
-                    case(branchCond)
-                        4'b0000: doJump = Z;
-                        4'b0001: doJump = ~Z;
-                        4'b0010: doJump = C;
-                        4'b0011: doJump = ~C;
-                        4'b0100: doJump = N;
-                        4'b0101: doJump = ~N;
-                        4'b0110: doJump = V;
-                        4'b0111: doJump = ~V;
-                        4'b1000: doJump = C & ~Z;
-                        4'b1001: doJump = ~C | Z;
-                        4'b1010: doJump = N == V;
-                        4'b1011: doJump = N != V;
-                        4'b1100: doJump = ~Z & N == V;
-                        4'b1101: doJump = Z | N != V;
-                        4'b1110: doJump = 1;
-                        default: doJump = 0;
-                    endcase
-                    if(doJump) begin
-                        if(~immediateMode) PC = results;
-                    end
+                if(branch & doJump) begin
+                    PC = nextPC;
                 end
                 else begin
                     PC = PC + 1;
@@ -107,6 +88,24 @@ Instruction Fetch
 	always @ (*) begin
 		if (~nreset_sync) I = 32'hC8000000;
 		else I = instruction_memory_v;
+        case(branchCond)
+            4'b0000: doJump = Z;
+            4'b0001: doJump = ~Z;
+            4'b0010: doJump = C;
+            4'b0011: doJump = ~C;
+            4'b0100: doJump = N;
+            4'b0101: doJump = ~N;
+            4'b0110: doJump = V;
+            4'b0111: doJump = ~V;
+            4'b1000: doJump = C & ~Z;
+            4'b1001: doJump = ~C | Z;
+            4'b1010: doJump = N == V;
+            4'b1011: doJump = N != V;
+            4'b1100: doJump = ~Z & N == V;
+            4'b1101: doJump = Z | N != V;
+            4'b1110: doJump = 1;
+            default: doJump = 0;
+        endcase
 	end
 
 	wire  [3:0] decode_err;
@@ -152,7 +151,7 @@ Instruction Fetch
     
 //ALU
     ALU ALU1(
-        .op1Reg(toPC ? PC : op1),
+        .op1Reg(toPC ? {PC, 2'b0} : op1),
         .op2Reg(op2),
         .immediateMode(immediateMode),
         .immediate(immediate),
@@ -164,15 +163,18 @@ Instruction Fetch
     
 //Execute
     always @(*) begin
-        if(toPC & doJump) PC = results[31:2];
+        //if(toPC & doJump & branch) nextPC = results[31:2];
         if(setFlags) PSTATE = aluFlag;
         
     end
 
+    assign nextPC = results[31:2];
+
 //Write Back
-    assign data_memory_read = ~data_memory_write
+    assign data_memory_read = ~data_memory_write;
     always @(*) begin
-        if(ldst) begin;
+        data_memory_a = 0;
+        if(ldst) begin
             data_memory_a = results;
             if(SnL) begin
                 data_memory_write = 1;

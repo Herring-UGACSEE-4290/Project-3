@@ -11,13 +11,13 @@ module RegisterFile(
     output [31:0] out2
 );
 
-    reg [255:0] regs;
+    reg [31:0] regs [7:0];
    
-    assign out1 = regs[op1Reg<<5 + 31:op1Reg<<5];
-    assign out2 = regs[op2Reg<<5 + 31:op2Reg<<5];
+    assign out1 = regs[op1Reg];
+    assign out2 = regs[op2Reg];
 
     always @(posedge clk) begin
-        if(clk_en & write_en) regs[writeReg<<5+31:writeReg<<5] = write_val;
+        if(clk_en & write_en) regs[writeReg] = write_val;
     end
 
 endmodule
