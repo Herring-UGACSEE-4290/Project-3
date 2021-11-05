@@ -86,3 +86,17 @@ We first use the `MOV32` instruction to load the full 32-bit address (decoded fr
 ## System Flags
 
 The system flags are Negative (N), Carry (C, Unsigned Overflow), Zero (Z), and V (Signed Overflow)
+
+## Error Indication
+
+The input/output model of the CPU includes a 2-bit output for error indication. There are three states for these bits:
+
+- No Error: 0b00
+- HALT: 0b01
+- ERROR: 0b10
+
+**No Error** indicates there is no error or halt, it will continue execution as normal.
+
+**HALT** indicates that the program has ended, and halts CPU execution. This also halts the execution of the provided testbench, and prints "Apollo has landed" in the simulation terminal.
+
+**ERROR** indicates that an error has occured in the CPU, and halts it's execution. We will define these error conditions in another section. This also halts the execution of the provided testbench, and prints "Houston we have a problem" in the simulation terminal.
