@@ -3,7 +3,7 @@
 #registers do not have bracket around them
 #assembly does not need to end with a ;
 
-.start	
+start:	
 		LOAD	R11, R10
 
 		STOR	R0, R2

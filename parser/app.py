@@ -338,9 +338,20 @@ def assemble_opcode(dict):
         opcode = 0
         opcode_len = 0
         label = None
+
+        if line["mnemonic"] is None:
+            # TODO: What should we do in this case?
+            print("Missing mnemonic for line {}. Skipping instruction. Error: {}".format(lineNum, line["error"]))
+            continue
+
         for inst in instrs:
             # Matches the op_code mnemonic and the number of args
-            if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"]):
+
+            #Joe changed this section to be more readable
+            argsMatch = get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"])
+            opCodeMatch = instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold()
+
+            if opCodeMatch and argsMatch:
                 # ors the op_code as the first 7 bits
                 opcode = opcode | int(instrs[inst]["instr"], 2)
                 opcode_len = opcode_len + 7
@@ -377,6 +388,7 @@ def assemble_opcode(dict):
 
 def write_file(opcodes):
     with open("output.mem","w") as file:
+        # TODO: write inital memaddress
         for opcode, _ in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
@@ -394,8 +406,10 @@ if __name__ == '__main__':
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
-        dict = load_asm("test.asm")
+        dict = load_asm("BabyTest.asm")
+    # TODO: check for errors and log them
     assemble_from_token(dict)
+    # TODO: check for errors and log them
     opcodes = assemble_opcode(dict)
     print(opcodes)
     
