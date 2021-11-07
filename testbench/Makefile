@@ -19,3 +19,6 @@ build: testbench.vvp
 
 simulate: build
 	$(SIM) testbench.vvp $(SIMFLAGS)$(PROGRAM)
+	
+clean:
+	rm testbench.vvp

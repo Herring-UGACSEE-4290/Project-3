@@ -40,7 +40,7 @@ module CPU(
     wire writeEnable;
     wire [31:0] results, op1, op2;
 
-    reg [29:0] PC;
+    wire [29:0] PC;
     reg [3:0] PSTATE;
     
     reg nreset_sync;
@@ -70,25 +70,12 @@ Instruction Fetch
 
     reg doJump;
     wire [29:0] nextPC;
-	always @ (posedge clk or negedge nreset_sync) begin
-        
-        
-        if(~nreset_sync) PC <= 29'h0;
-        else begin
-            if(npe_stop) 
-                if(branch & doJump) begin
-                    PC = nextPC;
-                end
-                else begin
-                    PC = PC + 1;
-                end
-        end
-	end
 
 	always @ (*) begin
 		if (~nreset_sync) I = 32'hC8000000;
 		else I = instruction_memory_v;
-        case(branchCond)
+        
+        if(branch) case(branchCond)
             4'b0000: doJump = Z;
             4'b0001: doJump = ~Z;
             4'b0010: doJump = C;
@@ -106,6 +93,7 @@ Instruction Fetch
             4'b1110: doJump = 1;
             default: doJump = 0;
         endcase
+        else doJump = 0;
 	end
 
 	wire  [3:0] decode_err;
@@ -144,9 +132,13 @@ Instruction Fetch
         .writeReg(resultReg),
         .op1Reg(op1Reg),
         .op2Reg(op2Reg),
+        
+        .nextPC(nextPC),
+        .writePC(doJump),
 
         .out1(op1),
-        .out2(op2)
+        .out2(op2),
+        .PC(PC)
     );
     
 //ALU
@@ -168,7 +160,7 @@ Instruction Fetch
         
     end
 
-    assign nextPC = results[31:2];
+    assign nextPC = ~nreset ? 0 : (doJump ? results[31:2] : PC + 4);
 
 //Write Back
     assign data_memory_read = ~data_memory_write;
