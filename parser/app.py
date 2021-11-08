@@ -305,6 +305,7 @@ def pseudo_mnemonics(index, lines):
         lines[index+1]["args"][1]["Imm"] >>= 16
     return False
 
+
 labels = {}
 def assemble_from_token(lines):
     global addr
