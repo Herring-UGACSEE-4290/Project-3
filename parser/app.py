@@ -417,7 +417,6 @@ def assemble_opcode(dict):
 
 def write_file(opcodes):
     with open("output.mem","w") as file:
-        # TODO: write inital memaddress
         for opcode, _ in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
@@ -428,6 +427,7 @@ def write_file(opcodes):
             file.write(hex_address + " | " + hex_string + ": \t" + (inst["label"] +
                 ": \t" if inst["label"] is not None else "\t\t")+
                 inst["mnemonic"] + "\t\n")
+
 
 
 if __name__ == '__main__':
