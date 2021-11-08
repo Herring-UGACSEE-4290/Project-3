@@ -4,6 +4,7 @@
 import re
 import json
 import sys
+import copy
 
 condition_lookup = {
     "eq": 0,
@@ -112,7 +113,7 @@ def parse_label(line):
     
 def parse_instruction(line):
 
-    re_mnem = re.compile('\s+([A-Za-z.]+).*$')
+    re_mnem = re.compile('\s+([A-Za-z.0-9]+).*$')
     re_cond = re.compile('[bB]\.([a-zA-Z]+)')
     
     mnemonic_obj = re_mnem.search(line)
@@ -316,19 +317,15 @@ subindex = 1
 def pseudo_mnemonics(index, lines):
     global addr
     global subindex
-    if lines[index]["mnemonic"] == "org":
+    if lines[index]["mnemonic"] == "ORG":
         addr = lines[index]["args"][0]["Imm"]
         return True
-    elif lines[index]["mnemonic"] == "mov32":
-        lines.insert(index + subindex, lines[index])
-        subindex += 1
-        lines[index]["mnemonic"] = "mov"
+    elif lines[index]["mnemonic"] == "MOV32":
+        lines.insert(index + 1, copy.deepcopy(lines[index]))
+        lines[index]["mnemonic"] = "MOV"
         lines[index]["args"][1]["Imm"] &= 0xFFFF
-        lines[index]["addr"] = addr
-        lines[index+1]["mnemonic"] = "movt"
+        lines[index+1]["mnemonic"] = "MOVT"
         lines[index+1]["args"][1]["Imm"] >>= 16
-        lines[index+1]["addr"] = addr + 4
-        addr += 8
     return False
 
 labels = {}
@@ -408,15 +405,22 @@ def assemble_opcode(dict):
                 # Ensures to opcode is 32 bits if it does not have leading zeros
                 if len(bin(opcode)[2:]) < 32:
                     opcode = opcode << (32 - opcode_len)
-                opcodes.append(opcode)
+                opcodes.append((opcode, line))
     write_file(opcodes)
     return opcodes
 
 def write_file(opcodes):
     with open("output.mem","w") as file:
-        for opcode in opcodes:
+        for opcode, _ in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
+    with open("output.lst","w") as file:
+        for opcode, inst in opcodes:
+            hex_string = '{0:08X}'.format(opcode)
+            hex_address = '{0:08X}'.format(inst["addr"])
+            file.write(hex_address + " | " + hex_string + ": \t" + (inst["label"] +
+                ": \t" if inst["label"] is not None else "\t\t")+
+                inst["mnemonic"] + "\t\n")
 
 
 if __name__ == '__main__':
