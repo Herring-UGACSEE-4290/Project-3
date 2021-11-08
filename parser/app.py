@@ -353,20 +353,41 @@ def assemble_opcode(dict):
 
             if opCodeMatch and argsMatch:
                 # ors the op_code as the first 7 bits
-                opcode = opcode | int(instrs[inst]["instr"], 2)
-                opcode_len = opcode_len + 7
+                try:
+                    opcode = opcode | int(instrs[inst]["instr"], 2)
+                    opcode_len = opcode_len + 7
+                except KeyError:
+                    print("Mnemonic " + line["mnemonic"] + " not found. Line: ",line["line number"])
+                    continue
+                except:
+                    print("I don't know how but you broke it. Line: ",line["line number"])
+                    continue
                 # Gets the arguments
                 for (index, arg) in enumerate(line["args"]):
                     if arg.get("Reg"):
                         # Shifts the current op_code right 3 and adds the register
                         opcode = (opcode << 3)
                         opcode_len = opcode_len + 3
-                        opcode = opcode | int(arg["Reg"])
+                        try:
+                            opcode = opcode | int(arg["Reg"])
+                        except TypeError:
+                            print(arg["Reg"] + "is not a number. Line: ", line["line number"])
+                            continue
+                        except:
+                            print("I don't know how but you broke it. Line: ",line["line number"])
+                            continue
                         # Encodes the flags
                     elif arg.get("Flg"):
                         # Shifts the op_code right 4 and adds the flag
                         print(condition_lookup[arg["Flg"].lower()])
-                        opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
+                        try:
+                            opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
+                        except KeyError:
+                            print("Could not find " + arg["Flg"] + "flag. Line: ",line["line number"])
+                            continue
+                        except:
+                            print("I don't know how but you broke it. Line: ",line["line number"])
+                            continue
                         opcode_len = opcode_len + 4
                         # Encodes the Immediate value
                     elif arg.get("Imm"):
@@ -374,10 +395,17 @@ def assemble_opcode(dict):
                         offset = 32 - opcode_len
                         opcode = (opcode << offset)
                         opcode_len = opcode_len + offset
-                        try:
+                        if type(arg["Imm"]) == str:
+                            try:
+                                opcode = opcode | labels[arg["Imm"]] - line["addr"]
+                            except KeyError:
+                                print("Label " + arg["Imm"] + " is not defined. Line: " + line["line number"])
+                                continue
+                            except:
+                                print("I don't know how but you broke it. Line: ",line["line number"])
+                                continue
+                        else:
                             opcode = opcode | arg["Imm"]
-                        except:
-                            opcode = opcode | labels[arg["Imm"]] - line["addr"]
                             # print("Something wrong with Imm")
                 # Ensures to opcode is 32 bits if it does not have leading zeros
                 if len(bin(opcode)[2:]) < 32:
