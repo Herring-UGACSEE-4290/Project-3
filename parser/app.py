@@ -188,7 +188,6 @@ def parse_arguments(line, cond):
                 continue
 
         if type(arg) == str: #assume the last possible argument would be branch target
-            # print(arg)
             temp = {'Imm': None}
             temp['Imm'] = arg
             args[i] = temp
@@ -451,8 +450,4 @@ if __name__ == '__main__':
         dict = load_asm(sys.argv[1])
     else:
         dict = load_asm("../tests/test.asm")
-    # TODO: check for errors and log them
     assemble_from_token(dict)
-    # TODO: check for errors and log them
-    opcodes = assemble_opcode(dict)
-    
