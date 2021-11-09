@@ -396,7 +396,6 @@ def assemble_opcode(dict):
                         # Encodes the flags
                     elif arg.get("Flg"):
                         # Shifts the op_code right 4 and adds the flag
-                        print(condition_lookup[arg["Flg"].lower()])
                         try:
                             opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
                         except KeyError:
