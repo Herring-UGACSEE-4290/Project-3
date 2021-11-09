@@ -316,17 +316,18 @@ subindex = 1
 def pseudo_mnemonics(index, lines):
     global addr
     global subindex
-    if lines[index]["mnemonic"] == "ORG":
-        addr = lines[index]["args"][0]["Imm"]
+    if lines[index]["mnemonic"] == "org":
+        addr = 0
         return True
-    elif lines[index]["mnemonic"] == "MOV32":
-        lines.insert(index + 1, copy.deepcopy(lines[index]))
-        lines[index]["mnemonic"] = "MOV"
+    elif lines[index]["mnemonic"] == "mov32":
+        lines.insert(index + subindex, lines[index])
+        subindex += 1
+        lines[index]["mnemonic"] == "mov"
         lines[index]["args"][1]["Imm"] &= 0xFFFF
-        lines[index+1]["mnemonic"] = "MOVT"
+        lines[index+1]["mnemonic"] = "movt"
         lines[index+1]["args"][1]["Imm"] >>= 16
+        addr += 8
     return False
-
 
 labels = {}
 def assemble_from_token(lines):
@@ -340,7 +341,6 @@ def assemble_from_token(lines):
         if(pseudo_mnemonics(i, lines)):
             pass
         else:
-            lines[i]["addr"] = addr
             addr += 4
 
 def get_arg_keys(arg_list):
@@ -361,54 +361,24 @@ def assemble_opcode(dict):
         opcode = 0
         opcode_len = 0
         label = None
-        if line["mnemonic"] is None:
-            # TODO: What should we do in this case?
-            print("Missing mnemonic for line {}. Skipping instruction. Error: {}".format(lineNum, line["error"]))
-            continue
-
         for inst in instrs:
             # Matches the op_code mnemonic and the number of args
-
-            #Joe changed this section to be more readable
-            argsMatch = get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"])
-            opCodeMatch = instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold()
-
-            if opCodeMatch and argsMatch:
+            if instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold() and get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"]):
                 # ors the op_code as the first 7 bits
-                try:
-                    opcode = opcode | int(instrs[inst]["instr"], 2)
-                    opcode_len = opcode_len + 7
-                except KeyError:
-                    print("Mnemonic " + line["mnemonic"] + " not found. Line: ",line["line number"])
-                    continue
-                except:
-                    print("I don't know how but you broke it. Line: ",line["line number"])
-                    continue
+                opcode = opcode | int(instrs[inst]["instr"], 2)
+                opcode_len = opcode_len + 7
                 # Gets the arguments
                 for (index, arg) in enumerate(line["args"]):
                     if arg.get("Reg"):
                         # Shifts the current op_code right 3 and adds the register
                         opcode = (opcode << 3)
                         opcode_len = opcode_len + 3
-                        try:
-                            opcode = opcode | int(arg["Reg"])
-                        except TypeError:
-                            print(arg["Reg"] + "is not a number. Line: ", line["line number"])
-                            continue
-                        except:
-                            print("I don't know how but you broke it. Line: ",line["line number"])
-                            continue
+                        opcode = opcode | int(arg["Reg"])
                         # Encodes the flags
                     elif arg.get("Flg"):
                         # Shifts the op_code right 4 and adds the flag
-                        try:
-                            opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
-                        except KeyError:
-                            print("Could not find " + arg["Flg"] + "flag. Line: ",line["line number"])
-                            continue
-                        except:
-                            print("I don't know how but you broke it. Line: ",line["line number"])
-                            continue
+                        print(condition_lookup[arg["Flg"].lower()])
+                        opcode = (opcode << 4 | condition_lookup[arg["Flg"].lower()])
                         opcode_len = opcode_len + 4
                         # Encodes the Immediate value
                     elif arg.get("Imm"):
@@ -416,37 +386,23 @@ def assemble_opcode(dict):
                         offset = 32 - opcode_len
                         opcode = (opcode << offset)
                         opcode_len = opcode_len + offset
-                        if type(arg["Imm"]) == str:
-                            try:
-                                opcode = opcode | labels[arg["Imm"]] - line["addr"]
-                            except KeyError:
-                                print("Label " + arg["Imm"] + " is not defined. Line: " + line["line number"])
-                                continue
-                            except:
-                                print("I don't know how but you broke it. Line: ",line["line number"])
-                                continue
-                        else:
+                        try:
                             opcode = opcode | arg["Imm"]
+                        except:
+                            opcode = opcode | labels[arg["Imm"]]
                             # print("Something wrong with Imm")
                 # Ensures to opcode is 32 bits if it does not have leading zeros
                 if len(bin(opcode)[2:]) < 32:
                     opcode = opcode << (32 - opcode_len)
-                opcodes.append((opcode, line))
+                opcodes.append(opcode)
     write_file(opcodes)
     return opcodes
 
 def write_file(opcodes):
     with open("output.mem","w") as file:
-        for opcode, _ in opcodes:
+        for opcode in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
-    with open("output.lst","w") as file:
-        for opcode, inst in opcodes:
-            hex_string = '{0:08X}'.format(opcode)
-            hex_address = '{0:08X}'.format(inst["addr"])
-            file.write(hex_address + " | " + hex_string + ": \t" + (inst["label"] +
-                ": \t" if inst["label"] is not None else "\t\t")+
-                inst["mnemonic"] + "\t\n")
 
 
 if __name__ == '__main__':
