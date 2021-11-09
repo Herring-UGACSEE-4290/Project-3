@@ -449,5 +449,6 @@ if __name__ == '__main__':
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
-        dict = load_asm("../tests/test.asm")
+        dict = load_asm("../tests/BabyTest.asm")
     assemble_from_token(dict)
+    opcodes = assemble_opcode(dict)
