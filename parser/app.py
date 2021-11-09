@@ -253,6 +253,19 @@ def parse_line(i, line, line_dict):
         else:
             print("typing error") #handle this the correct way
             return line_dict
+
+def print_load_asm_error(line_data):
+    is_error = False
+    for line_dict in line_data:
+        if line_dict['errors']:
+            print('Syntax error on line', line_dict['line number'])
+            is_error = True
+        else:
+            continue
+    
+    if is_error:
+        quit()
+
     
 
 
@@ -287,6 +300,8 @@ def load_asm(filename):
             line['args'] = []
     
     line_data = insert_labels_to_instructions(line_data)
+
+    print_load_asm_error(line_data)
 
     return line_data
 
@@ -436,10 +451,9 @@ if __name__ == '__main__':
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
-        dict = load_asm("BabyTest.asm")
+        dict = load_asm("../tests/test.asm")
     # TODO: check for errors and log them
     assemble_from_token(dict)
     # TODO: check for errors and log them
     opcodes = assemble_opcode(dict)
-    print(opcodes)
     
