@@ -141,3 +141,7 @@ cython_debug/
 *.v.out
 *.vvp
 *.lx2
+
+#our stuff
+*.mem
+*.lst
