@@ -27,7 +27,7 @@ condition_lookup = {
 }
 
 
-def parse_comments(line):
+def parse_comments(lines, line_data):
     '''
     remove comment from line
 
@@ -36,16 +36,18 @@ def parse_comments(line):
 
     comment = None
 
-    re_comment = re.compile('.*;(.*)$')
+    for i, line_dict in enumerate(line_data):
 
-    comment_obj = re_comment.match(line)
+        index = lines[i].find(';')
 
-    if comment_obj:
-        comment_start_index = comment_obj.start(1)
-        comment = comment_obj.group(1)
-        line = line[:comment_start_index-1]
+        if index >= 0:
+            lines[i] = lines[i][:index]
+            comment = lines[i][index+1:]
+            if len(comment) == 0:
+                comment = None
 
-    return line, comment
+        line_data[i]['comment'] = comment
+    return lines, line_data
     
 def del_blanklines(lines, line_data):
     '''
@@ -217,10 +219,6 @@ def parse_line(i, line, line_dict):
         type_instruction = False
         error = None
 
-        line, comment = parse_comments(line)
-        if comment:
-            line_dict["comment"] = comment
-
         
         type_label, type_instruction, error = get_line_type(line, type_label, type_instruction, error)
         if error:
@@ -265,8 +263,6 @@ def print_load_asm_error(line_data):
     if is_error:
         quit()
 
-    
-
 
 def load_asm(filename):
     line_data = []
@@ -282,11 +278,22 @@ def load_asm(filename):
         line_data.append(d)
 
 
+
+    
+
+    try:
+        lines, line_data = parse_comments(lines, line_data)
+    except:
+        print('error parssing comment')
+        quit()
+
+
     lines, line_data = del_blanklines(lines, line_data)
 
 
     #now parse line by line
     for i, line in enumerate(lines):
+
 
         try:
             line_data[i] = parse_line(i, line, line_data[i])
