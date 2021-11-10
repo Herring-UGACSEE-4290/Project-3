@@ -438,6 +438,7 @@ def assemble_opcode(dict):
 
 def write_file(opcodes):
     with open("output.mem","w") as file:
+        file.write("@00000000\n")
         for opcode, _ in opcodes:
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
@@ -456,6 +457,6 @@ if __name__ == '__main__':
     if(len(sys.argv)>1):
         dict = load_asm(sys.argv[1])
     else:
-        dict = load_asm("../tests/BabyTest.asm")
+        dict = load_asm("C:/Workspace/Project-3/tests/BabyTest.asm")
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
