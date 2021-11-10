@@ -357,7 +357,7 @@ def assemble_opcode(dict):
 
         if line["mnemonic"] is None:
             # TODO: What should we do in this case?
-            print("Missing mnemonic for line {}. Skipping instruction. Error: {}".format(lineNum, line["error"]))
+            print("Missing mnemonic for line {}. Skipping instruction. Error: {}".format(line["line number"], line["error"]))
             continue
 
         for inst in instrs:
