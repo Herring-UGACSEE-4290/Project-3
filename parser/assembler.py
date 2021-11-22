@@ -268,8 +268,12 @@ def load_asm(filename):
     line_data = []
     keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "errors"]
 
-    with open(filename) as file:
-        lines = file.read().splitlines()
+    try:
+        with open(filename) as file:
+            lines = file.read().splitlines()
+    except:
+        print(f"Could not find or could not open '{filename}'")
+        quit()
 
     #initialize line_data and populate line number
     for i, line in enumerate(lines):
@@ -454,9 +458,9 @@ def write_file(opcodes):
 
 if __name__ == '__main__':
     dict = {}
-    if(len(sys.argv)>1):
+    if(len(sys.argv) == 2):
         dict = load_asm(sys.argv[1])
     else:
-        dict = load_asm("C:/Workspace/Project-3/tests/BabyTest.asm")
+        print("1 argument must be given")
     assemble_from_token(dict)
     opcodes = assemble_opcode(dict)
