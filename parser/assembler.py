@@ -397,6 +397,7 @@ def assemble_opcode(dict):
         opcode = 0
         opcode_len = 0
         label = None
+        assembled = False
 
         if line["mnemonic"] is None:
             # TODO: What should we do in this case?
@@ -411,6 +412,7 @@ def assemble_opcode(dict):
             opCodeMatch = instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold()
 
             if opCodeMatch and argsMatch:
+                assembled = True
                 # ors the op_code as the first 7 bits
                 try:
                     opcode = opcode | int(instrs[inst]["instr"], 2)
@@ -469,6 +471,8 @@ def assemble_opcode(dict):
                 if len(bin(opcode)[2:]) < 32:
                     opcode = opcode << (32 - opcode_len)
                 opcodes.append((opcode, line))
+        if not assembled:
+            print("Instruction {instruction} on line {line} not found. Possilbe incorrect number of arguments".format(instruction = line["mnemonic"],line=line["line number"]))
     write_file(opcodes)
     return opcodes
 
