@@ -139,7 +139,7 @@
         "instr": "0010010"
     },
     "o_subs" : {
-        "op_code": "subs",
+        "op_code": "cmp",
         "args": [
             {"Reg": [24,22]},
             {"Reg": [21,19]},
@@ -148,7 +148,7 @@
         "instr": "0111010"
     },
     "i_subs" : {
-        "op_code": "subs",
+        "op_code": "cmp",
         "args": [
             {"Reg": [24,22]},
             {"Reg": [21,19]},
@@ -222,7 +222,7 @@
         "instr": "0011011"
     },
     "i_or" : {
-        "op_code": "orr",
+        "op_code": "or",
         "args": [
             {"Reg": [24,22]},
             {"Reg": [21,19]},
@@ -231,7 +231,7 @@
         "instr": "0010100"
     },
     "o_or" : {
-        "op_code": "orr",
+        "op_code": "or",
         "args": [
             {"Reg": [24,22]},
             {"Reg": [21,19]},

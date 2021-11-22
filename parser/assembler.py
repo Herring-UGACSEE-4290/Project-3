@@ -251,6 +251,27 @@ def parse_line(i, line, line_dict):
             print("typing error") #handle this the correct way
             return line_dict
 
+def check_mnemonics(line_data):
+    with open("instructions.json") as f:
+       instrs = json.load(f)
+
+    mnemonics = []
+
+    for i in instrs.keys():
+        opcode = instrs[i]["op_code"]
+        mnemonics.append(opcode)
+    
+    for i, line in enumerate(line_data):
+        parsed_mnemonic = line["mnemonic"].lower()
+        if parsed_mnemonic:
+            if parsed_mnemonic not in mnemonics:
+                print(parsed_mnemonic, mnemonics)
+                line_data[i]["errors"] = "mnemonic not recognized"
+
+    return line_data
+
+
+
 def print_load_asm_error(line_data):
     is_error = False
     for line_dict in line_data:
@@ -267,7 +288,6 @@ def print_load_asm_error(line_data):
 def load_asm(filename):
     line_data = []
     keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "errors"]
-
     try:
         with open(filename) as file:
             lines = file.read().splitlines()
@@ -308,8 +328,20 @@ def load_asm(filename):
     for line in line_data:
         if not line['args']:
             line['args'] = []
+
+    
     
     line_data = insert_labels_to_instructions(line_data)
+
+    
+    try:
+        line_data = check_mnemonics(line_data)
+    except:
+        print("Failed checking mnemonics")
+        quit()
+
+       
+    
 
     print_load_asm_error(line_data)
 
