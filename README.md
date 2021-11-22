@@ -8,7 +8,7 @@ First, make sure you have Icarus Verilog and GTKwave installed via the Getting S
 
 Then, make sure you have a version of Python 3 installed on your computer. You can use the [official Python website for installation instructions](https://www.python.org/downloads/).
 
-Next, make sure you have `make` installed on your system. For Linux users it should already be installed, and instructions for MacOS and Windows are below:
+Next, make sure you have `make` installed on your system. For Linux users, it should already be installed. Instructions for MacOS and Windows are below:
 
 ### Make for Windows
 
@@ -54,7 +54,7 @@ Now, install make:
 ```
 brew install make
 ```
-and make sure everything worked:
+and ensure that everything worked:
 ```
 make --version
 ```
@@ -64,4 +64,5 @@ Now you should be all set to use this repo!
 ## How to Use This Repository
 
 Now that you have your dependencies setup, you can begin to use this repo for developing your single cycle computer!
+
 
