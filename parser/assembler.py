@@ -257,10 +257,13 @@ def check_mnemonics(line_data):
        instrs = json.load(f)
 
     mnemonics = []
+    directives = ['org', 'mov32', 'rmb', 'fcb']
 
     for i in instrs.keys():
         opcode = instrs[i]["op_code"]
         mnemonics.append(opcode)
+
+    mnemonics.extend(directives)
     
     for i, line in enumerate(line_data):
         parsed_mnemonic = line["mnemonic"].lower()
@@ -340,7 +343,7 @@ def load_asm(filename):
         print("Failed checking mnemonics")
         quit()
 
-       
+    line_data = check_mnemonics(line_data) 
     
 
     print_load_asm_error(line_data)

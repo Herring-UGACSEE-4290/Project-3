@@ -14,7 +14,7 @@ start:
 test:
 		ADD 	R9, R1, R2 
 		AND 	R10, R9, R3; .: this is a comment!
-		ORR 	R11, R5, R9
+		OR 	R11, R5, R9
 		SUB 	R12, R9, R7
 
 		NOP
