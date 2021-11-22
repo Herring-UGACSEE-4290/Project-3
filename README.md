@@ -65,4 +65,3 @@ Now you should be all set to use this repo!
 
 Now that you have your dependencies setup, you can begin to use this repo for developing your single cycle computer!
 
-
