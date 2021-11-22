@@ -218,6 +218,7 @@ def parse_line(i, line, line_dict):
         type_label = False
         type_instruction = False
         error = None
+        line_dict['opcode'] = None
 
         
         type_label, type_instruction, error = get_line_type(line, type_label, type_instruction, error)
@@ -287,7 +288,7 @@ def print_load_asm_error(line_data):
 
 def load_asm(filename):
     line_data = []
-    keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "errors"]
+    keys = ["label", "mnemonic", "args", "addr", "comment", "line number", "errors", "opcode"]
     try:
         with open(filename) as file:
             lines = file.read().splitlines()
@@ -355,6 +356,12 @@ def pseudo_mnemonics(index, lines):
     if lines[index]["mnemonic"] == "ORG":
         addr = lines[index]["args"][0]["Imm"]
         return True
+    elif lines[index]["mnemonic"] == "FCB":
+        lines[index]["opcode"] = lines[index]["args"][0]["Imm"]
+        return False 
+    elif lines[index]["mnemonic"] == "RMB":
+        lines[index]["opcode"] = 0
+        return False 
     elif lines[index]["mnemonic"] == "MOV32":
         lines.insert(index + 1, copy.deepcopy(lines[index]))
         lines[index]["mnemonic"] = "MOV"
@@ -407,12 +414,10 @@ def assemble_opcode(dict):
         for inst in instrs:
             # Matches the op_code mnemonic and the number of args
 
-            #Joe changed this section to be more readable
             argsMatch = get_arg_keys(instrs[inst]["args"]) == get_arg_keys(line["args"])
             opCodeMatch = instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold()
 
-            if opCodeMatch and argsMatch:
-                assembled = True
+            if not line["opcode"] and opCodeMatch and argsMatch:
                 # ors the op_code as the first 7 bits
                 try:
                     opcode = opcode | int(instrs[inst]["instr"], 2)
@@ -470,20 +475,25 @@ def assemble_opcode(dict):
                 # Ensures to opcode is 32 bits if it does not have leading zeros
                 if len(bin(opcode)[2:]) < 32:
                     opcode = opcode << (32 - opcode_len)
-                opcodes.append((opcode, line))
+                opcodes.append((opcode, line["addr"], line))
+            if(line["opcode"]):
+                opcodes.append((line["opcode"], line["addr"], line))
         if not assembled:
-            print("Instruction {instruction} on line {line} not found. Possilbe incorrect number of arguments".format(instruction = line["mnemonic"],line=line["line number"]))
+            print("Instruction {instruction} on line {line} not found. Possible incorrect number of arguments".format(instruction = line["mnemonic"],line=line["line number"]))
     write_file(opcodes)
     return opcodes
 
 def write_file(opcodes):
     with open("output.mem","w") as file:
-        file.write("@00000000\n")
-        for opcode, _ in opcodes:
+        last_addr = 0
+        for opcode, addr, _ in opcodes:
+            if addr != last_addr + 4:
+                file.write("@" + '{0:08X}'.format(addr) + "\n")
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
+            last_addr = addr
     with open("output.lst","w") as file:
-        for opcode, inst in opcodes:
+        for opcode, addr, inst in opcodes:
             hex_string = '{0:08X}'.format(opcode)
             hex_address = '{0:08X}'.format(inst["addr"])
             file.write(hex_address + " | " + hex_string + ": \t" + (inst["label"] +
