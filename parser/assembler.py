@@ -266,7 +266,6 @@ def check_mnemonics(line_data):
         parsed_mnemonic = line["mnemonic"].lower()
         if parsed_mnemonic:
             if parsed_mnemonic not in mnemonics:
-                print(parsed_mnemonic, mnemonics)
                 line_data[i]["errors"] = "mnemonic not recognized"
 
     return line_data
