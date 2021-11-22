@@ -485,7 +485,7 @@ def write_file(opcodes):
         last_addr = 0
         for opcode, addr, _ in opcodes:
             if addr != last_addr + 4:
-                file.write("@" + '{0:08X}'.format(opcode) + "\n")
+                file.write("@" + '{0:08X}'.format(addr) + "\n")
             hex_string = '{0:08X} \n'.format(opcode)
             file.write(" ". join(hex_string[i:i+2] for i in range(0, len(hex_string),2)))
             last_addr = addr
