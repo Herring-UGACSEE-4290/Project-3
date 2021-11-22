@@ -418,6 +418,7 @@ def assemble_opcode(dict):
             opCodeMatch = instrs[inst]["op_code"].casefold() == line["mnemonic"].casefold()
 
             if not line["opcode"] and opCodeMatch and argsMatch:
+                assembled = True
                 # ors the op_code as the first 7 bits
                 try:
                     opcode = opcode | int(instrs[inst]["instr"], 2)
@@ -478,7 +479,7 @@ def assemble_opcode(dict):
                 opcodes.append((opcode, line["addr"], line))
             if(line["opcode"]):
                 opcodes.append((line["opcode"], line["addr"], line))
-        if not assembled:
+        if not assembled and line["opcode"] is None:
             print("Instruction {instruction} on line {line} not found. Possible incorrect number of arguments".format(instruction = line["mnemonic"],line=line["line number"]))
     write_file(opcodes)
     return opcodes
