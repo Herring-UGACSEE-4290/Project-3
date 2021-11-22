@@ -344,8 +344,8 @@ def load_asm(filename):
         quit()
 
     line_data = check_mnemonics(line_data) 
-    
 
+    
     print_load_asm_error(line_data)
 
     return line_data
