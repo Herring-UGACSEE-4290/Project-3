@@ -63,7 +63,7 @@ Now you should be all set to use this repo!
 
 ## How to Use This Repository
 
-Now that you have your dependencies setup, you can begin to use this repo for developing your single cycle computer!
+Now that you have your dependencies set-up, you can begin to use this repo for developing your single cycle computer!
 
 In the repository, you'll find a couple of directories:
 
