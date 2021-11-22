@@ -1,7 +1,7 @@
 
-;#labels do not begin with .    they end with a colon
-;#registers do not have bracket around them
-;#assembly does not need to end with a ;
+; labels do not begin with .    they end with a colon
+; registers do not have bracket around them
+; assembly does not need to end with a ;
 
 start:	
 		LOAD	R11, R10
