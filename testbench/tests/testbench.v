@@ -6,7 +6,7 @@ module testbench();
 	event START_LOG;
 	initial begin
 		@(START_LOG);
-		$dumpvars(0, cpu); // dump CPU variables
+		$dumpvars(0, tesbench); // dump CPU variables
 	end
 
     // Clocks
