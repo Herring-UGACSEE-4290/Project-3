@@ -28,8 +28,8 @@ module InstructionDecoder (
 
     assign immediateMode = ~|I[31:30] | ~|I[28:26];
     assign immediate = I[15:0];
-    assign aluMode = I[29];
-    assign aluFunc = |I[31:30] ? I[27:25] : 3'b001;
+    assign aluMode = ~I[29];
+    assign aluFunc = ~I[31] ? I[27:25] : 3'b001;
     assign setFlags = I[28] & I[31:29] == 1;
     assign toPC = &I[31:30] & ~|I[28:26];
 
