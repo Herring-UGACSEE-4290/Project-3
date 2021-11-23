@@ -257,7 +257,7 @@ def check_mnemonics(line_data):
     checks if the given mnemonics are in the list of recognized ISA mnemonics. 
     Also warns the user if halt is not the last mnemonic
     '''
-    with open("instructions.json") as f:
+    with open("parser/instructions.json") as f:
        instrs = json.load(f)
 
     mnemonics = []
@@ -385,7 +385,7 @@ labels = {}
 def assemble_from_token(lines):
     global addr
     global labels
-    f = open("instructions.json")
+    f = open("parser/instructions.json")
     instrs = json.load(f)
     for i, line in enumerate(lines):
         if line["label"] is not None:
@@ -408,7 +408,7 @@ def get_arg_keys(arg_list):
 def assemble_opcode(dict):
     instrs = None
     opcodes = []
-    with open("instructions.json") as f:
+    with open("parser/instructions.json") as f:
        instrs = json.load(f)    
     for (lineNum, line) in enumerate(dict):
         opcode = 0
@@ -417,7 +417,6 @@ def assemble_opcode(dict):
         assembled = False
 
         if line["mnemonic"] is None:
-            # TODO: What should we do in this case?
             print("Missing mnemonic for line {}. Skipping instruction. Error: {}".format(line["line number"], line["error"]))
             continue
 
@@ -473,7 +472,10 @@ def assemble_opcode(dict):
                         opcode_len = opcode_len + offset
                         if type(arg["Imm"]) == str:
                             try:
-                                opcode = opcode | labels[arg["Imm"]] - line["addr"]
+                                temp = labels[arg["Imm"]] - line["addr"]
+                                if temp < 0:
+                                    temp = int(hex(((abs(temp) ^ 0xffff) + 1) & 0xffff),16)
+                                opcode = opcode | temp
                             except KeyError:
                                 print("Label " + arg["Imm"] + " is not defined. Line: " + line["line number"])
                                 continue
@@ -489,8 +491,8 @@ def assemble_opcode(dict):
                 opcodes.append((opcode, line["addr"], line))
             if(line["opcode"]):
                 opcodes.append((line["opcode"], line["addr"], line))
-        if not assembled and line["opcode"] is None:
-            print("Instruction {instruction} on line {line} not found. Possible incorrect number of arguments".format(instruction = line["mnemonic"],line=line["line number"]))
+        if not assembled and line["opcode"] == None and not line["mnemonic"] == "ORG":
+            print("Instruction {instruction} on line {line} not found. Possible incorrect number of arguments.".format(instruction = line["mnemonic"],line=line["line number"]))
     write_file(opcodes)
     return opcodes
 
