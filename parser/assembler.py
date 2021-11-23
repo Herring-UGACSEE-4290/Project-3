@@ -253,6 +253,10 @@ def parse_line(i, line, line_dict):
             return line_dict
 
 def check_mnemonics(line_data):
+    '''
+    checks if the given mnemonics are in the list of recognized ISA mnemonics. 
+    Also warns the user if halt is not the last mnemonic
+    '''
     with open("instructions.json") as f:
        instrs = json.load(f)
 
@@ -270,6 +274,12 @@ def check_mnemonics(line_data):
         if parsed_mnemonic:
             if parsed_mnemonic not in mnemonics:
                 line_data[i]["errors"] = "mnemonic not recognized"
+
+    #check if last instruction is halt
+    if len(line_data) != 0:
+        last_mnem = line_data[-1]["mnemonic"].lower()
+        if last_mnem != 'halt':
+            print("Warning: Last instruction is not HALT")
 
     return line_data
 
@@ -343,9 +353,7 @@ def load_asm(filename):
         print("Failed checking mnemonics")
         quit()
 
-    line_data = check_mnemonics(line_data) 
 
-    
     print_load_asm_error(line_data)
 
     return line_data
