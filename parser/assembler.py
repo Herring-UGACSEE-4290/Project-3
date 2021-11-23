@@ -252,6 +252,8 @@ def parse_line(i, line, line_dict):
             print("typing error") #handle this the correct way
             return line_dict
 
+directives = ['org', 'mov32', 'rmb', 'fcb']
+
 def check_mnemonics(line_data):
     '''
     checks if the given mnemonics are in the list of recognized ISA mnemonics. 
@@ -261,7 +263,6 @@ def check_mnemonics(line_data):
        instrs = json.load(f)
 
     mnemonics = []
-    directives = ['org', 'mov32', 'rmb', 'fcb']
 
     for i in instrs.keys():
         opcode = instrs[i]["op_code"]
@@ -411,6 +412,7 @@ def assemble_opcode(dict):
     with open("parser/instructions.json") as f:
        instrs = json.load(f)    
     for (lineNum, line) in enumerate(dict):
+
         opcode = 0
         opcode_len = 0
         label = None
@@ -489,8 +491,8 @@ def assemble_opcode(dict):
                 if len(bin(opcode)[2:]) < 32:
                     opcode = opcode << (32 - opcode_len)
                 opcodes.append((opcode, line["addr"], line))
-            if(line["opcode"]):
-                opcodes.append((line["opcode"], line["addr"], line))
+        if(line["opcode"]):
+            opcodes.append((line["opcode"], line["addr"], line))
         if not assembled and line["opcode"] == None and not line["mnemonic"] == "ORG":
             print("Instruction {instruction} on line {line} not found. Possible incorrect number of arguments.".format(instruction = line["mnemonic"],line=line["line number"]))
     write_file(opcodes)
