@@ -472,16 +472,9 @@ def assemble_opcode(dict):
                         opcode_len = opcode_len + offset
                         if type(arg["Imm"]) == str:
                             try:
-                                print(arg["Imm"])
-                                print("Label #:",labels[arg["Imm"]])
-                                print("Line #: ", line["addr"])
-
                                 temp = labels[arg["Imm"]] - line["addr"]
-                                print(hex(temp))
                                 if temp < 0:
-                                    print("Am here")
                                     temp = int(hex(((abs(temp) ^ 0xffff) + 1) & 0xffff),16)
-                                print(hex(temp))
                                 opcode = opcode | temp
                             except KeyError:
                                 print("Label " + arg["Imm"] + " is not defined. Line: " + line["line number"])
