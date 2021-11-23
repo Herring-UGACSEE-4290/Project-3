@@ -19,13 +19,17 @@ Once you have MSYS2/WSL setup properly by following the instructions in Lab 4, w
 #### MSYS2 Instructions
 
 Open up an MSYS2 terminal and enter the following command to install make:
+
 ```
 pacman -S make
 ```
+
 Test this installation by running the following command in a normal command prompt or PowerShell:
+
 ```
 make --version
 ```
+
 If you get some boilerplate text and a version number, you're all set!
 
 #### WSL Instructions
@@ -35,6 +39,7 @@ Open up a WSL terminal and enter the following command to make sure make is inst
 sudo apt install gcc gdb make
 
 After entering your WSL password and following the prompts, ensure everything installed correctly by executing this command:
+
 ```
 make --version
 ```
@@ -42,19 +47,26 @@ make --version
 ### Make for MacOS
 
 To make sure we have `make` installed on MacOS, we'll need to use the homebrew package manager. If you don't already have homebrew installed on your MacOS machine, install it using this command:
+
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
+
 Then, make sure you're package list is updated:
+
 ```
 brew update
 brew upgrade
 ```
+
 Now, install make:
+
 ```
 brew install make
 ```
+
 and ensure that everything worked:
+
 ```
 make --version
 ```
@@ -85,8 +97,16 @@ Generally, you'll read through the documentation in `scc.docx` and use that to c
 
 As an example, to test and run your Single Cycle Computer with a particular test assembly file, execute the following command:
 
+Linux:
+
 ```
 python3 parser/assembler.py tests/<assembly file>.asm
+```
+
+Windows:
+
+```
+python parser/assembler.py tests/`<assembly file>`.asm
 ```
 
 where `<assembly file>` is the assembly test file you wish to run. Then, change directory into the `scc` folder and execute the following commands:
@@ -101,4 +121,3 @@ which will compile the verilog in the `scc/src` folder and the `testbench.v` fil
 ```
 gtkwave dump.lx2
 ```
-
