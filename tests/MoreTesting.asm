@@ -16,9 +16,8 @@ thingy:
     
     BR r4, #0xa5
     MOV32 r3, #0x0
-    RMB
     XOR r1,r2,r3
     XORS r1,r2,r3
-    FCB #0x04
+
 
     HALT
