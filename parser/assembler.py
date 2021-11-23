@@ -409,7 +409,6 @@ def assemble_opcode(dict):
         assembled = False
 
         if line["mnemonic"] is None:
-            # TODO: What should we do in this case?
             print("Missing mnemonic for line {}. Skipping instruction. Error: {}".format(line["line number"], line["error"]))
             continue
 
@@ -481,8 +480,8 @@ def assemble_opcode(dict):
                 opcodes.append((opcode, line["addr"], line))
             if(line["opcode"]):
                 opcodes.append((line["opcode"], line["addr"], line))
-        if not assembled and line["opcode"] is None:
-            print("Instruction {instruction} on line {line} not found. Possible incorrect number of arguments".format(instruction = line["mnemonic"],line=line["line number"]))
+        if not assembled and line["opcode"] == None and not line["mnemonic"] == "ORG":
+            print("Instruction {instruction} on line {line} not found. Possible incorrect number of arguments.".format(instruction = line["mnemonic"],line=line["line number"]))
     write_file(opcodes)
     return opcodes
 
