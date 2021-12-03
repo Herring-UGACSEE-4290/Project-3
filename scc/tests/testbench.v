@@ -1,4 +1,4 @@
-`timescale  10ms/1ps
+`timescale  10ms/1ms
 
 module testbench();
 
