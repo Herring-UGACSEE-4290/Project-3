@@ -259,7 +259,7 @@ def check_mnemonics(line_data):
     checks if the given mnemonics are in the list of recognized ISA mnemonics. 
     Also warns the user if halt is not the last mnemonic
     '''
-    with open("parser/instructions.json") as f:
+    with open("../parser/instructions.json") as f:
        instrs = json.load(f)
 
     mnemonics = []
@@ -271,16 +271,19 @@ def check_mnemonics(line_data):
     mnemonics.extend(directives)
     
     for i, line in enumerate(line_data):
-        parsed_mnemonic = line["mnemonic"].lower()
-        if parsed_mnemonic:
-            if parsed_mnemonic not in mnemonics:
-                line_data[i]["errors"] = "mnemonic not recognized"
+        print(line)
+        if not line["mnemonic"] == None:
+            parsed_mnemonic = line["mnemonic"].lower()
+            if parsed_mnemonic:
+                if parsed_mnemonic not in mnemonics:
+                    line_data[i]["errors"] = "mnemonic not recognized"
 
     #check if last instruction is halt
     if len(line_data) != 0:
-        last_mnem = line_data[-1]["mnemonic"].lower()
-        if last_mnem != 'halt':
-            print("Warning: Last instruction is not HALT")
+        if not line_data[-1]["mnemonic"] == None:
+            last_mnem = line_data[-1]["mnemonic"].lower()
+            if last_mnem != 'halt':
+                print("Warning: Last instruction is not HALT")
 
     return line_data
 
@@ -386,7 +389,7 @@ labels = {}
 def assemble_from_token(lines):
     global addr
     global labels
-    f = open("parser/instructions.json")
+    f = open("../parser/instructions.json")
     instrs = json.load(f)
     for i, line in enumerate(lines):
         if line["label"] is not None:
@@ -409,7 +412,7 @@ def get_arg_keys(arg_list):
 def assemble_opcode(dict):
     instrs = None
     opcodes = []
-    with open("parser/instructions.json") as f:
+    with open("../parser/instructions.json") as f:
        instrs = json.load(f)    
     for (lineNum, line) in enumerate(dict):
 
