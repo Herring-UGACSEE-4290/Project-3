@@ -109,15 +109,4 @@ Windows:
 python ../parser/assembler.py ../tests/`<assembly file>`.asm
 ```
 
-where `<assembly file>` is the assembly test file you wish to run. Then, change directory into the `scc` folder and execute the following commands:
-
-```
-make build
-make simulate output.mem
-```
-
-which will compile the verilog in the `scc/src` folder and the `testbench.v` file with `testbench` being the top-level module. It will also simulate with the given `output.mem` file, and export that to a file called `dump.lx2` in the `scc` folder. You can view the simulation using `gtkwave`:
-
-```
-gtkwave dump.lx2
-```
+where `<assembly file>` is the assembly test file you wish to run.  After building the '.mem' file you will need to move it do where your SCC source files are and built with the appropriate build system.
