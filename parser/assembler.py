@@ -271,7 +271,7 @@ def check_mnemonics(line_data):
     mnemonics.extend(directives)
     
     for i, line in enumerate(line_data):
-        print(line)
+        # print(line)
         if not line["mnemonic"] == None:
             parsed_mnemonic = line["mnemonic"].lower()
             if parsed_mnemonic:
